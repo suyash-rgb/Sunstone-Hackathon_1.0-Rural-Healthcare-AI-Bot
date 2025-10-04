@@ -1,0 +1,89 @@
+# Python bytecode and cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pdb
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Environment variables
+.env
+.env.*
+
+# FastAPI static/media folders (optional)
+/static/
+media/
+uploads/
+
+# Dependency folders
+*.egg-info/
+dist/
+build/
+*.manifest
+*.spec
+
+# Model data and checkpoints
+*.h5
+*.ckpt
+*.pt
+*.pth
+*.joblib
+*.sav
+*.tflite
+*.onnx
+models/
+checkpoints/
+saved_models/
+*.pb
+
+# Logs and temp files
+*.log
+*.tmp
+*.temp
+*.cache
+.cache/
+*.gz
+*.zip
+*.tar
+*.tgz
+
+# Coverage and test reports
+coverage/
+*.lcov
+*.lcov.info
+htmlcov/
+.nyc_output/
+.pytest_cache/
+.tox/
+nosetests.xml
+coverage.xml
+*.cover
+*.pyc
+
+# IDE/editor configs
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Misc
+*.swp
+*.bak
+*.orig
+*.rej
+*.swo
+*.swn
+*.pid
+*.pid.lock
