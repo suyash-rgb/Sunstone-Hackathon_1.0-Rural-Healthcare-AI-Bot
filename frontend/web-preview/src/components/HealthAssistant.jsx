@@ -26,20 +26,19 @@ export default function HealthAssistant() {
         )}
       </div>
 
-      {/* Action Buttons */}
       <div className="grid grid-cols-4 gap-4 px-8">
-        <button className="bg-red-500 text-white py-2 rounded-lg shadow hover:bg-red-600">
-            <FaAmbulance className="inline-block mr-2" /> Emergency
-        </button>
-        <button className="bg-blue-500 text-white py-2 rounded-lg shadow hover:bg-blue-600">
-            <FaHospital className="inline-block mr-2" /> Find Hospital
-        </button>
-        <button className="bg-blue-500 text-white py-2 rounded-lg shadow hover:bg-blue-600">
-            <FaUserMd className="inline-block mr-2" /> Book Doctor
-        </button>
-        <button className="bg-blue-500 text-white py-2 rounded-lg shadow hover:bg-blue-600">
-            <FaFirstAid className="inline-block mr-2" /> First Aid
-        </button>
+       <button className="bg-red-500 text-white py-4 text-lg rounded-lg shadow hover:bg-red-600">
+          <FaAmbulance className="inline-block mr-2 text-xl" /> Emergency
+       </button>
+       <button className="bg-blue-500 text-white py-4 text-lg rounded-lg shadow hover:bg-blue-600">
+          <FaHospital className="inline-block mr-2 text-xl" /> Find Hospital
+       </button>
+       <button className="bg-blue-500 text-white py-4 text-lg rounded-lg shadow hover:bg-blue-600">
+          <FaUserMd className="inline-block mr-2 text-xl" /> Book Doctor
+       </button>
+       <button className="bg-blue-500 text-white py-4 text-lg rounded-lg shadow hover:bg-blue-600">
+          <FaFirstAid className="inline-block mr-2 text-xl" /> First Aid
+       </button>
       </div>
 
       {/* Chat Input */}
