@@ -7,20 +7,47 @@ import { FaAmbulance, FaHospital, FaUserMd, FaFirstAid } from 'react-icons/fa';
 export default function HealthAssistant() {
   const [chatOpen, setChatOpen] = useState(true);
   const [showMessage, setShowMessage] = useState(false);
+  const [language, setLanguage] = useState('en');
 
   useEffect(() => {
-  const timer = setTimeout(() => {
-    setShowMessage(true);
-  }, 300); // delay in ms
+    const timer = setTimeout(() => {
+      setShowMessage(true);
+    }, 300); // delay in ms
 
-  return () => clearTimeout(timer);
+    return () => clearTimeout(timer);
   }, []);
+
+  const languages = [
+    { code: 'en', name: 'English' },
+    { code: 'hi', name: 'हिंदी' },
+    { code: 'bn', name: 'বাংলা' },
+    { code: 'te', name: 'తెలుగు' },
+    { code: 'ta', name: 'தமிழ்' },
+    { code: 'mr', name: 'मराठी' },
+    { code: 'gu', name: 'ગુજરાતી' },
+    { code: 'kn', name: 'ಕನ್ನಡ' },
+    { code: 'ml', name: 'മലയാളം' },
+    { code: 'pa', name: 'ਪੰਜਾਬੀ' }
+  ];
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col justify-between font-sans">
       {/* Chat Header */}
       <div className="bg-white shadow-md p-4">
-        <h2 className="text-lg font-semibold text-gray-800">RuralHealth.AI</h2>
+        <div className="flex justify-between items-center">
+          <h2 className="text-lg font-semibold text-gray-800">RuralHealth.AI</h2>
+          <select 
+            value={language}
+            onChange={(e) => setLanguage(e.target.value)}
+            className="px-3 py-1 mr-5 rounded-md border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
+          >
+            {languages.map(lang => (
+              <option key={lang.code} value={lang.code}>
+                {lang.name}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {/* Chat Window */} 
