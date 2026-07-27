@@ -101,3 +101,45 @@ designs/
 *.ai
 *.sketch
 *.fig
+
+# Untracked Hackathon raw data, corpora, and utility scripts
+/Creating a Model from Scratch Explained.docx
+/Creating a Model from Scratch Process.docx
+/Gemini Plan.docx
+/Task Breakdown.docx
+/Wiki Sourcess.docx
+/Hackathon 1.0 - Problem Statements .pdf
+/How to train a Transformer model on Colab and expose a FAST API endpoint using ngrok.pdf
+/Telemedicine_Guidelines.pdf
+/Mental_Health_Dataset_with_context.xlsx
+/Mental_Health_FAQ.csv
+/Mental_Health_FAQ_with_context.xlsx
+/QA.csv
+/curated_Mental_Health_Dataset.xlsx
+/only NHM_QA_Dataset.xlsx
+/append_from_dataset.py
+/clean_corpus.py
+/clean_pdf.py
+/clean_wiki_articles.py
+/clean_xl.py
+/export_as_dataset.py
+/linebyline.py
+/text_clean.py
+/word_count.py
+/combined_corpus.txt
+/f_combined_corpus.txt
+/final_combined_corpus.txt
+/kids_health_dataset.txt
+/output_triplets.txt
+/db.sql
+/A realistic web prev.png
+/lovable design.png
+/archive/
+/datasets/
+/logos/
+/misc scrapped data/
+/text corpus after cleaning/
+/text corpus before cleaning/
+
+# Untracked backend directory on whatsapp-simulation branch
+/fastapi_backend/
