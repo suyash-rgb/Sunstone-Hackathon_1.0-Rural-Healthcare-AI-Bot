@@ -22,13 +22,65 @@ import {
   ArrowLeft,
   CheckCheck,
   Camera,
-  FileText
+  FileText,
+  Play,
+  Pause,
+  Trash2
 } from 'lucide-react-native';
+import { useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';
 import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
 import { initialChats, getSimulatedResponse } from './src/mockData';
 import { styles } from './src/styles';
 import Profile from './src/Profile';
+import RecordingBar from './src/RecordingBar';
+
+const AudioMessage = ({ uri }) => {
+  const player = useAudioPlayer(uri);
+  const status = useAudioPlayerStatus(player);
+
+  const togglePlayback = () => {
+    if (status.playing) {
+      player.pause();
+    } else {
+      if (status.currentTime >= status.duration && status.duration > 0) {
+        player.seekTo(0);
+      }
+      player.play();
+    }
+  };
+
+
+  const formatTime = (seconds) => {
+    if (!seconds) return '0:00';
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+    return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+  };
+
+  const progressPercent = status.duration && status.currentTime
+    ? (status.currentTime / status.duration) * 100
+    : 0;
+
+  return (
+    <View style={styles.audioContainer}>
+      <TouchableOpacity onPress={togglePlayback} style={styles.audioPlayButton}>
+        {status.playing ? <Pause size={24} color="#00a884" /> : <Play size={24} color="#00a884" />}
+      </TouchableOpacity>
+      
+      <View style={styles.audioProgressTrack}>
+        <View style={[styles.audioProgressBar, { width: `${progressPercent}%` }]} />
+        <View style={[styles.audioProgressDot, { left: `${progressPercent}%` }]} />
+      </View>
+      
+      <Text style={styles.audioDuration}>
+        {formatTime(status.currentTime || status.duration)}
+      </Text>
+      
+      <Mic size={16} color="#00A884" style={{ marginLeft: 6 }} />
+    </View>
+  );
+};
 
 export default function App() {
   const [activeChat] = useState(initialChats[0]);
@@ -36,6 +88,7 @@ export default function App() {
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [currentScreen, setCurrentScreen] = useState('chat');
+  const [isRecording, setIsRecording] = useState(false);
 
   const scrollViewRef = useRef(null);
 
@@ -201,6 +254,7 @@ export default function App() {
                         <Text style={styles.documentName} numberOfLines={1}>{msg.name}</Text>
                       </View>
                     )}
+                    {msg.type === 'audio' && <AudioMessage uri={msg.uri} />}
                     {msg.text ? <Text style={styles.bubbleText}>{msg.text}</Text> : null}
                     <View style={styles.bubbleFooter}>
                       <Text style={styles.bubbleTime}>{msg.time}</Text>
@@ -224,34 +278,45 @@ export default function App() {
 
         {/* Input Bar */}
         <View style={styles.inputBar}>
-          <View style={styles.inputContainer}>
-            <TouchableOpacity style={styles.inputIconButton}>
-              <Smile size={24} color="#8696a0" />
-            </TouchableOpacity>
-
-            <TextInput
-              placeholder="Type a message"
-              placeholderTextColor="#8696a0"
-              style={styles.chatTextInput}
-              value={inputText}
-              onChangeText={setInputText}
-              onSubmitEditing={handleSendMessage}
+          {isRecording ? (
+            <RecordingBar 
+              onSend={(uri) => {
+                sendMediaMessage({ type: 'audio', uri });
+                setIsRecording(false);
+              }}
+              onCancel={() => setIsRecording(false)}
             />
+          ) : (
+            <>
+              <View style={styles.inputContainer}>
+                <TouchableOpacity style={styles.inputIconButton}>
+                  <Smile size={24} color="#8696a0" />
+                </TouchableOpacity>
 
-            <TouchableOpacity style={styles.inputIconButton} onPress={handleAttachment}>
-              <Paperclip size={24} color="#8696a0" />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.inputIconButton} onPress={handleCamera}>
-              <Camera size={24} color="#8696a0" />
-            </TouchableOpacity>
-          </View>
+                <TextInput
+                  placeholder="Type a message"
+                  placeholderTextColor="#8696a0"
+                  style={styles.chatTextInput}
+                  value={inputText}
+                  onChangeText={setInputText}
+                  onSubmitEditing={handleSendMessage}
+                />
 
-          {/* Voice/Send Button */}
-          <TouchableOpacity style={styles.micButton} onPress={inputText.trim() ? handleSendMessage : null}>
-            <View style={styles.micCircle}>
-              <Mic size={24} color="#fff" />
-            </View>
-          </TouchableOpacity>
+                <TouchableOpacity style={styles.inputIconButton} onPress={handleAttachment}>
+                  <Paperclip size={24} color="#8696a0" />
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.inputIconButton} onPress={handleCamera}>
+                  <Camera size={24} color="#8696a0" />
+                </TouchableOpacity>
+              </View>
+
+              <TouchableOpacity style={styles.micButton} onPress={inputText.trim() ? handleSendMessage : () => setIsRecording(true)}>
+                <View style={styles.micCircle}>
+                  <Mic size={24} color="#fff" />
+                </View>
+              </TouchableOpacity>
+            </>
+          )}
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>

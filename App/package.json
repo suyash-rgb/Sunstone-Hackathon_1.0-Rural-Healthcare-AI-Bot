@@ -4,6 +4,8 @@
   "main": "index.js",
   "dependencies": {
     "expo": "~54.0.0",
+    "expo-audio": "~1.1.1",
+    "expo-av": "~16.0.8",
     "expo-document-picker": "~14.0.8",
     "expo-image-picker": "~17.0.11",
     "expo-status-bar": "~3.0.9",

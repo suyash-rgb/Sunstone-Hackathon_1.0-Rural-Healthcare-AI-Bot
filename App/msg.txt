@@ -1,0 +1,8 @@
+Add Voice Recording functionality and audio player styling
+
+- Installed and integrated expo-audio for native voice recording and playback capabilities.
+- Added a push-to-talk microphone button that pulses red while recording, closely mimicking WhatsApp's behavior.
+- Extracted recording functionality into a separate `src/RecordingBar.js` component to keep `App.js` clean and modular.
+- Added a custom audio player UI (`AudioMessage`) in `App.js` with playback controls, duration, and a functional progress bar.
+- Fixed audio player progression tracking and implemented manual replay support (preventing automatic loop).
+- Updated audio player CSS in `src/styles.js` for better visual contrast and premium feel in light mode.
