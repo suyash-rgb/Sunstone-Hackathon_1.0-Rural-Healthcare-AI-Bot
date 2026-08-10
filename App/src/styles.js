@@ -138,6 +138,35 @@ export const styles = StyleSheet.create({
     marginLeft: 8,
     fontStyle: 'italic',
   },
+  bubbleImage: {
+    width: 240,
+    height: 240,
+    borderRadius: 8,
+    marginBottom: 4,
+  },
+  documentContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.05)',
+    padding: 8,
+    borderRadius: 8,
+    marginBottom: 4,
+  },
+  documentIconBox: {
+    width: 40,
+    height: 40,
+    backgroundColor: '#FF5722',
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10,
+  },
+  documentName: {
+    flex: 1,
+    fontSize: 14,
+    color: '#111B21',
+    fontWeight: '500'
+  },
   inputBar: {
     flexDirection: 'row',
     alignItems: 'flex-end',

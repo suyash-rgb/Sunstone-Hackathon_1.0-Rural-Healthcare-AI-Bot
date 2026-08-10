@@ -7,7 +7,7 @@ export const initialChats = [
     messages: [
       {
         id: 'msg-1',
-        text: 'Welcome to Rural HealthBot!\nHow can I assist you Today?',
+        text: 'Welcome to Aarogya Mitra!\nHow can I assist you Today?',
         sender: 'other',
         time: '14.09'
       },
