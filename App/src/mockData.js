@@ -1,14 +1,14 @@
 export const initialChats = [
   {
     id: 'ai-bot',
-    name: 'Rural Healthcare AI Bot',
-    avatar: '🤖',
+    name: 'AarogyaMitra (AI Health Bot)',
+    avatar: '/logo-removebg-preview.png',
     status: 'online',
     subtitle: 'AI Health Assistant',
     messages: [
       {
         id: 'm1',
-        text: 'Namaste! I am your Rural Healthcare Assistant. How can I help you today?',
+        text: 'Namaste! I am AarogyaMitra, your Rural Healthcare Assistant. How can I help you today?',
         sender: 'other',
         time: '10:00 AM'
       },
@@ -79,7 +79,7 @@ export const initialChats = [
 export function getSimulatedResponse(userMessage, chatName) {
   const query = userMessage.toLowerCase();
   
-  if (chatName.includes('AI Bot')) {
+  if (chatName.includes('AI Bot') || chatName.includes('AarogyaMitra')) {
     if (query.includes('hello') || query.includes('hi') || query.includes('namaste')) {
       return "Namaste! I hope you are doing well. Please tell me what health issues or symptoms you'd like guidance on today.";
     }

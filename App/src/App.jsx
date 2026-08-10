@@ -8,7 +8,8 @@ import {
   ScrollView,
   SafeAreaView,
   Dimensions,
-  ActivityIndicator
+  ActivityIndicator,
+  Image
 } from 'react-native';
 import {
   Search,
@@ -179,7 +180,11 @@ export default function App() {
                     style={[styles.chatListItem, isSelected && styles.selectedItem]}
                     onPress={() => selectChat(item.id)}
                   >
-                    <Text style={styles.chatAvatar}>{item.avatar}</Text>
+                    {item.avatar.startsWith('/') || item.avatar.startsWith('http') ? (
+                      <Image source={{ uri: item.avatar }} style={styles.chatAvatarImage} />
+                    ) : (
+                      <Text style={styles.chatAvatar}>{item.avatar}</Text>
+                    )}
                     <View style={styles.chatListItemContent}>
                       <View style={styles.chatListItemHeader}>
                         <Text style={styles.chatItemName}>{item.name}</Text>
@@ -209,7 +214,11 @@ export default function App() {
                   <ArrowLeft size={20} color="#8696a0" />
                 </TouchableOpacity>
               )}
-              <Text style={styles.activeChatAvatar}>{activeChat.avatar}</Text>
+              {activeChat.avatar.startsWith('/') || activeChat.avatar.startsWith('http') ? (
+                <Image source={{ uri: activeChat.avatar }} style={styles.activeChatAvatarImage} />
+              ) : (
+                <Text style={styles.activeChatAvatar}>{activeChat.avatar}</Text>
+              )}
               <View style={styles.headerMeta}>
                 <Text style={styles.activeChatName}>{activeChat.name}</Text>
                 <Text style={styles.activeChatStatus}>
@@ -402,6 +411,12 @@ const styles = StyleSheet.create({
     fontSize: 28,
     marginRight: 12,
   },
+  chatAvatarImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 12,
+  },
   chatListItemContent: {
     flex: 1,
   },
@@ -425,6 +440,12 @@ const styles = StyleSheet.create({
   },
   activeChatAvatar: {
     fontSize: 28,
+    marginRight: 12,
+  },
+  activeChatAvatarImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     marginRight: 12,
   },
   headerMeta: {
