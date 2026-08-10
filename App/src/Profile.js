@@ -9,7 +9,8 @@ import {
   Image,
   Switch,
   Platform,
-  StatusBar
+  StatusBar,
+  Modal
 } from 'react-native';
 import {
   ArrowLeft,
@@ -34,9 +35,16 @@ import {
 export default function Profile({ activeChat, goBack }) {
   const [chatLock, setChatLock] = React.useState(false);
   const [translate, setTranslate] = React.useState(false);
+  const [modalVisible, setModalVisible] = React.useState(false);
 
   return (
     <View style={styles.container}>
+      <Modal visible={modalVisible} transparent={true} animationType="fade" onRequestClose={() => setModalVisible(false)}>
+        <TouchableOpacity style={styles.modalBackground} activeOpacity={1} onPress={() => setModalVisible(false)}>
+          <Image source={activeChat.avatar} style={styles.fullScreenAvatar} />
+        </TouchableOpacity>
+      </Modal>
+
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.headerButton} onPress={goBack}>
@@ -56,7 +64,9 @@ export default function Profile({ activeChat, goBack }) {
         {/* Hero Section */}
         <View style={styles.sectionCard}>
           <View style={styles.heroContainer}>
-            <Image source={activeChat.avatar} style={styles.heroAvatar} />
+            <TouchableOpacity onPress={() => setModalVisible(true)} activeOpacity={0.8}>
+              <Image source={activeChat.avatar} style={styles.heroAvatar} />
+            </TouchableOpacity>
             <View style={styles.heroNameContainer}>
               <Text style={styles.heroName}>{activeChat.name}</Text>
               <BadgeCheck size={22} color="#53BDEB" fill="#fff" style={{ marginLeft: 6, marginTop: 4 }} />

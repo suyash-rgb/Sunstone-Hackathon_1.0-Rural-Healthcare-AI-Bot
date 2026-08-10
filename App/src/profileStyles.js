@@ -134,5 +134,17 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 16,
+  },
+  modalBackground: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  fullScreenAvatar: {
+    width: '100%',
+    aspectRatio: 1,
+    backgroundColor: '#FFFFFF',
+    resizeMode: 'contain',
   }
 });
