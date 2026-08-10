@@ -3,6 +3,7 @@ export const initialChats = [
     id: 'ai-bot',
     name: 'Aarogya Mitra',
     avatar: require('../../assets/logo-removebg-preview.png'),
+    isOfficial: true,
     status: 'last seen today at 15.24',
     messages: [
       {
@@ -16,6 +17,120 @@ export const initialChats = [
         text: 'hello',
         sender: 'me',
         time: '14.21'
+      }
+    ]
+  },
+  {
+    id: 'meta-ai',
+    name: 'Meta AI',
+    avatar: require('../../assets/meta-ai-logo.png'),
+    isMetaAI: true,
+    isOfficial: true,
+    status: 'AI Assistant',
+    messages: [
+      {
+        id: 'm-msg-1',
+        text: 'Hi! I am Meta AI. How can I help you today?',
+        sender: 'other',
+        time: '10:00'
+      }
+    ]
+  },
+  {
+    id: 'you',
+    name: 'Leo (You)',
+    avatar: require('../../assets/leo_profile_pic.jpg'),
+    status: 'you',
+    messages: [
+      {
+        id: 'my-msg-1',
+        text: 'I am OG now, I do not pay homage!',
+        sender: 'me',
+        time: '00:00'
+      }
+    ]
+  },
+  {
+    id: 'papa',
+    name: 'Papa',
+    avatar: null,
+    status: 'Dad',
+    messages: [
+      {
+        id: 'papa-msg-1',
+        text: 'Beta chai bna liyo',
+        sender: 'other',
+        time: '04:00'
+      }
+    ]
+  },
+  {
+    id: 'mummy',
+    name: 'Mummy',
+    avatar: null,
+    status: 'Mom',
+    messages: [
+      {
+        id: 'mummy-msg-1',
+        text: 'Dhaniya lete aana',
+        sender: 'other',
+        time: '10:00'
+      }
+    ]
+  },
+  {
+    id: 'ajay',
+    name: 'Ajay Clg',
+    avatar: null,
+    status: 'Clg Friend',
+    messages: [
+      {
+        id: 'ajay-msg-1',
+        text: 'Razorpay Integration success bhai',
+        sender: 'other',
+        time: '12:00'
+      }
+    ]
+  },
+  {
+    id: 'john-doe',
+    name: 'John Doe',
+    avatar: null,
+    status: 'last seen recently',
+    messages: [
+      {
+        id: 'j-msg-1',
+        text: 'Hey, are we still meeting up later?',
+        sender: 'other',
+        time: '09:45'
+      }
+    ]
+  },
+  {
+    id: 'jane-smith',
+    name: 'Jane Smith',
+    avatar: null,
+    status: 'last seen yesterday at 18:00',
+    messages: [
+      {
+        id: 'js-msg-1',
+        text: 'Thanks for the document! I will review it.',
+        sender: 'other',
+        time: 'Yesterday'
+      }
+    ]
+  },
+  {
+    id: 'ajeet',
+    name: 'Ajeet Clg',
+    avatar: null,
+    status: 'Friend',
+    messages: [
+      {
+        id: 'ajeet-msg-1',
+        text: 'Bhai project bn gya?',
+        sender: 'other',
+        time: '10:00'
       }
     ]
   }

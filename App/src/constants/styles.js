@@ -4,7 +4,6 @@ export const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#075E54', // Matches iOS status bar area
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
   },
   keyboardView: {
     flex: 1,
@@ -310,5 +309,87 @@ export const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 2,
     elevation: 2,
+  },
+  // --- Chat List Styles ---
+  homeHeader: {
+    height: 60,
+    backgroundColor: '#075E54',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+  },
+  homeTitle: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  homeIcons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  homeTabs: {
+    flexDirection: 'row',
+    backgroundColor: '#075E54',
+  },
+  tabItem: {
+    flex: 1,
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+  activeTab: {
+    borderBottomWidth: 3,
+    borderBottomColor: '#fff',
+  },
+  tabText: {
+    color: 'rgba(255,255,255,0.7)',
+    fontSize: 15,
+    fontWeight: 'bold',
+  },
+  activeTabText: {
+    color: '#fff',
+    fontSize: 15,
+    fontWeight: 'bold',
+  },
+  chatListContainer: {
+    backgroundColor: '#fff',
+  },
+  chatListItem: {
+    flexDirection: 'row',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f2f2f2',
+  },
+  chatListAvatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginRight: 16,
+    backgroundColor: '#fff',
+    resizeMode: 'contain',
+    borderWidth: 1,
+    borderColor: '#E9EDEF',
+  },
+  chatListDetails: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  chatListHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+  },
+  chatListName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#111B21',
+  },
+  chatListTime: {
+    fontSize: 12,
+    color: '#8696a0',
+  },
+  chatListLastMessage: {
+    fontSize: 14,
+    color: '#8696a0',
   },
 });
