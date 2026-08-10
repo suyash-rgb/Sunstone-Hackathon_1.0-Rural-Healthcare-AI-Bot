@@ -392,4 +392,22 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     color: '#8696a0',
   },
+  actionButtonsContainer: {
+    marginTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: '#f2f2f2',
+    paddingTop: 4,
+    minWidth: 200,
+  },
+  actionButton: {
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f2f2f2',
+    alignItems: 'center',
+  },
+  actionButtonText: {
+    color: '#027EB5',
+    fontSize: 15,
+    fontWeight: '500',
+  },
 });

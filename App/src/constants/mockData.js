@@ -8,15 +8,22 @@ export const initialChats = [
     messages: [
       {
         id: 'msg-1',
-        text: 'Welcome to Aarogya Mitra!\nHow can I assist you Today?',
+        text: 'Welcome to Aarogya Mitra! How can I assist you today?',
         sender: 'other',
-        time: '14.09'
+        time: '14.09',
+        buttons: [
+          'Locate a Healthcare Facility',
+          'Change Language',
+          'Book a Consultation',
+          'Talk to a Doctor',
+          '🚨 EMERGENCY/HELP'
+        ]
       },
       {
         id: 'msg-2',
-        text: 'hello',
-        sender: 'me',
-        time: '14.21'
+        text: 'Type /info for more information.',
+        sender: 'other',
+        time: '14.09'
       }
     ]
   },

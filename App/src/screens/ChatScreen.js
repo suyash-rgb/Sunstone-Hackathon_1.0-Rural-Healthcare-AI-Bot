@@ -187,6 +187,31 @@ export default function ChatScreen({ chat, goBack, openProfile }) {
                   )}
                   {msg.type === 'audio' && <AudioMessage uri={msg.uri} />}
                   {msg.text ? <Text style={styles.bubbleText}>{msg.text}</Text> : null}
+                  {msg.buttons && (
+                    <View style={styles.actionButtonsContainer}>
+                      {msg.buttons.map((btn, i) => (
+                        <TouchableOpacity 
+                          key={i} 
+                          style={styles.actionButton}
+                          onPress={() => {
+                            // Automatically send this button text as a message
+                            const newMsg = {
+                              id: Date.now().toString(),
+                              text: btn,
+                              sender: 'me',
+                              time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                            };
+                            setMessages(prev => [...prev, newMsg]);
+                            if (chat.isOfficial) {
+                              simulateBotResponse(btn);
+                            }
+                          }}
+                        >
+                          <Text style={styles.actionButtonText}>{btn}</Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  )}
                   <View style={styles.bubbleFooter}>
                     <Text style={styles.bubbleTime}>{msg.time}</Text>
                     {isMe && <CheckCheck size={14} color="#53bdeb" style={styles.checkIcon} />}
