@@ -2,7 +2,7 @@ export const initialChats = [
   {
     id: 'ai-bot',
     name: 'Aarogya Mitra',
-    avatar: require('../assets/logo-removebg-preview.png'),
+    avatar: require('../../assets/logo-removebg-preview.png'),
     status: 'last seen today at 15.24',
     messages: [
       {

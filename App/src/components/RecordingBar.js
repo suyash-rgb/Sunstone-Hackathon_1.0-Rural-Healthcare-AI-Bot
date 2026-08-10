@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Trash2, Send } from 'lucide-react-native';
 import { useAudioRecorder, RecordingPresets, requestRecordingPermissionsAsync } from 'expo-audio';
-import { styles } from './styles';
+import { styles } from '../constants/styles';
 
 export default function RecordingBar({ onSend, onCancel }) {
   const [isPaused, setIsPaused] = useState(false);

@@ -7,12 +7,12 @@ import {
   TextInput,
   TouchableOpacity,
   ScrollView,
-  SafeAreaView,
   KeyboardAvoidingView,
   Platform,
   Image,
   ActivityIndicator
 } from 'react-native';
+import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import {
   Search,
   MoreVertical,
@@ -27,60 +27,15 @@ import {
   Pause,
   Trash2
 } from 'lucide-react-native';
-import { useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';
 import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
-import { initialChats, getSimulatedResponse } from './src/mockData';
-import { styles } from './src/styles';
-import Profile from './src/Profile';
-import RecordingBar from './src/RecordingBar';
-
-const AudioMessage = ({ uri }) => {
-  const player = useAudioPlayer(uri);
-  const status = useAudioPlayerStatus(player);
-
-  const togglePlayback = () => {
-    if (status.playing) {
-      player.pause();
-    } else {
-      if (status.currentTime >= status.duration && status.duration > 0) {
-        player.seekTo(0);
-      }
-      player.play();
-    }
-  };
+import { initialChats, getSimulatedResponse } from './src/constants/mockData';
+import { styles } from './src/constants/styles';
+import ProfileScreen from './src/screens/ProfileScreen';
+import RecordingBar from './src/components/RecordingBar';
+import AudioMessage from './src/components/AudioMessage';
 
 
-  const formatTime = (seconds) => {
-    if (!seconds) return '0:00';
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = Math.floor(seconds % 60);
-    return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
-  };
-
-  const progressPercent = status.duration && status.currentTime
-    ? (status.currentTime / status.duration) * 100
-    : 0;
-
-  return (
-    <View style={styles.audioContainer}>
-      <TouchableOpacity onPress={togglePlayback} style={styles.audioPlayButton}>
-        {status.playing ? <Pause size={24} color="#00a884" /> : <Play size={24} color="#00a884" />}
-      </TouchableOpacity>
-      
-      <View style={styles.audioProgressTrack}>
-        <View style={[styles.audioProgressBar, { width: `${progressPercent}%` }]} />
-        <View style={[styles.audioProgressDot, { left: `${progressPercent}%` }]} />
-      </View>
-      
-      <Text style={styles.audioDuration}>
-        {formatTime(status.currentTime || status.duration)}
-      </Text>
-      
-      <Mic size={16} color="#00A884" style={{ marginLeft: 6 }} />
-    </View>
-  );
-};
 
 export default function App() {
   const [activeChat] = useState(initialChats[0]);
@@ -190,13 +145,15 @@ export default function App() {
   };
 
   if (currentScreen === 'profile') {
-    return (
-      <Profile activeChat={activeChat} goBack={() => setCurrentScreen('chat')} />
-    );
+    return <ProfileScreen
+          activeChat={activeChat}
+          goBack={() => setCurrentScreen('chat')}
+        />;
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaProvider>
+      <SafeAreaView style={styles.container}>
       <StatusBar style="light" backgroundColor="#054c44" />
       <KeyboardAvoidingView
         style={styles.keyboardView}
@@ -319,8 +276,7 @@ export default function App() {
           )}
         </View>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
-
-

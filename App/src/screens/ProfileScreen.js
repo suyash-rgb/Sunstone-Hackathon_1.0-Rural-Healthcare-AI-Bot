@@ -1,5 +1,5 @@
 import React from 'react';
-import { styles } from './profileStyles';
+import { styles } from '../constants/profileStyles';
 import {
   View,
   Text,
