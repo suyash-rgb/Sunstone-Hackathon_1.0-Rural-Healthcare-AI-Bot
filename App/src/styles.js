@@ -38,6 +38,7 @@ export const styles = StyleSheet.create({
     borderRadius: 20,
     marginRight: 10,
     backgroundColor: '#fff',
+    resizeMode: 'contain',
   },
   headerTitleContainer: {
     flex: 1,

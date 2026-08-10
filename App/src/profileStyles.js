@@ -32,6 +32,7 @@ export const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderWidth: 1,
     borderColor: '#E9EDEF',
+    resizeMode: 'contain',
   },
   headerTitle: {
     fontSize: 18,
@@ -57,6 +58,7 @@ export const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderWidth: 1,
     borderColor: '#E9EDEF',
+    resizeMode: 'contain',
   },
   heroNameContainer: {
     flexDirection: 'row',
