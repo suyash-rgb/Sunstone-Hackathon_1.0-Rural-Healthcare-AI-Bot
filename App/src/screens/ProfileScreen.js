@@ -45,25 +45,19 @@ export default function Profile({ activeChat, goBack }) {
         </TouchableOpacity>
       </Modal>
 
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.headerButton} onPress={goBack}>
-          <ArrowLeft size={24} color="#111B21" />
-        </TouchableOpacity>
-        <View style={styles.headerTitleContainer}>
-          <Image source={activeChat.avatar} style={styles.smallAvatar} />
-          <Text style={styles.headerTitle} numberOfLines={1}>{activeChat.name}</Text>
-          <BadgeCheck size={16} color="#53BDEB" style={{ marginLeft: 4, marginTop: 2 }} fill="#fff" />
-        </View>
-        <TouchableOpacity style={styles.headerButton}>
-          <MoreVertical size={24} color="#111B21" />
-        </TouchableOpacity>
-      </View>
-
       <ScrollView style={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* Hero Section */}
-        <View style={styles.sectionCard}>
-          <View style={styles.heroContainer}>
+        <View style={[styles.sectionCard, { marginTop: 0 }]}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 8, paddingTop: 8 }}>
+            <TouchableOpacity style={styles.headerButton} onPress={goBack}>
+              <ArrowLeft size={24} color="#111B21" />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.headerButton}>
+              <MoreVertical size={24} color="#111B21" />
+            </TouchableOpacity>
+          </View>
+          
+          <View style={[styles.heroContainer, { paddingTop: 8 }]}>
             <TouchableOpacity onPress={() => setModalVisible(true)} activeOpacity={0.8}>
               <Image source={activeChat.avatar} style={styles.heroAvatar} />
             </TouchableOpacity>
