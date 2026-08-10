@@ -1,33 +1,5 @@
 export const initialChats = [
   {
-    id: 'ai-bot',
-    name: 'Aarogya Mitra',
-    avatar: require('../../assets/logo-removebg-preview.png'),
-    isOfficial: true,
-    status: 'last seen today at 15.24',
-    messages: [
-      {
-        id: 'msg-1',
-        text: 'Welcome to Aarogya Mitra! How can I assist you today?',
-        sender: 'other',
-        time: '14.09',
-        buttons: [
-          '📍 Locate a Healthcare Facility',
-          'Change Language',
-          'Book a Consultation',
-          'Talk to a Doctor',
-          '🚨 EMERGENCY/HELP'
-        ]
-      },
-      {
-        id: 'msg-2',
-        text: 'Type /info for more information.',
-        sender: 'other',
-        time: '14.09'
-      }
-    ]
-  },
-  {
     id: 'meta-ai',
     name: 'Meta AI',
     avatar: require('../../assets/meta-ai-logo.png'),
@@ -54,6 +26,34 @@ export const initialChats = [
         text: 'I am OG now, I do not pay homage!',
         sender: 'me',
         time: '00:00'
+      }
+    ]
+  },
+  {
+    id: 'ai-bot',
+    name: 'Aarogya Mitra',
+    avatar: require('../../assets/logo-removebg-preview.png'),
+    isOfficial: true,
+    status: 'last seen today at 15.24',
+    messages: [
+      {
+        id: 'msg-1',
+        text: 'Welcome to Aarogya Mitra! How can I assist you today?',
+        sender: 'other',
+        time: '14.09',
+        buttons: [
+          '📍 Locate a Healthcare Facility',
+          'Change Language',
+          'Book a Consultation',
+          'Talk to a Doctor',
+          '🚨 EMERGENCY/HELP'
+        ]
+      },
+      {
+        id: 'msg-2',
+        text: 'Type /info for more information.',
+        sender: 'other',
+        time: '14.09'
       }
     ]
   },
