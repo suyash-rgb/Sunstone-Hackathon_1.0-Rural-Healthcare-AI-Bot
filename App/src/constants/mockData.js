@@ -12,7 +12,7 @@ export const initialChats = [
         sender: 'other',
         time: '14.09',
         buttons: [
-          'Locate a Healthcare Facility',
+          '📍 Locate a Healthcare Facility',
           'Change Language',
           'Book a Consultation',
           'Talk to a Doctor',

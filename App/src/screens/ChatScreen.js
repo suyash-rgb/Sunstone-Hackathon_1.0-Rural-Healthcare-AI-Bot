@@ -23,6 +23,7 @@ import {
 } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
+import * as Location from 'expo-location';
 import { getSimulatedResponse } from '../constants/mockData';
 import { styles } from '../constants/styles';
 import RecordingBar from '../components/RecordingBar';
@@ -47,7 +48,7 @@ export default function ChatScreen({ chat, goBack, openProfile }) {
 
     setMessages(prev => [...prev, newMsg]);
     setInputText('');
-    
+
     if (chat.isOfficial) {
       simulateBotResponse(inputText);
     }
@@ -108,7 +109,7 @@ export default function ChatScreen({ chat, goBack, openProfile }) {
       } else {
         botReply = getSimulatedResponse(userText, chat.name);
       }
-      
+
       const botMsg = {
         id: (Date.now() + 1).toString(),
         text: botReply,
@@ -190,10 +191,95 @@ export default function ChatScreen({ chat, goBack, openProfile }) {
                   {msg.buttons && (
                     <View style={styles.actionButtonsContainer}>
                       {msg.buttons.map((btn, i) => (
-                        <TouchableOpacity 
-                          key={i} 
+                        <TouchableOpacity
+                          key={i}
                           style={styles.actionButton}
                           onPress={() => {
+                            if (btn.includes('Locate a Healthcare Facility')) {
+                              (async () => {
+                                try {
+                                  // Immediate feedback so user knows it's working
+                                  const tempMsg = {
+                                    id: Date.now().toString(),
+                                    text: btn,
+                                    sender: 'me',
+                                    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                                  };
+                                  setMessages(prev => [...prev, tempMsg]);
+                                  setIsTyping(true);
+
+                                  let { status } = await Location.requestForegroundPermissionsAsync();
+                                  if (status !== 'granted') {
+                                    setTimeout(() => {
+                                      setIsTyping(false);
+                                      const botReply = "I need location access to find nearby healthcare facilities.\n\nTo enable it:\n• Android: Settings > Apps > Aarogya Mitra > Permissions > Location\n• iOS: Settings > Privacy > Location Services > Aarogya Mitra\n\nPlease enable it and try again.";
+                                      const botMsg = {
+                                        id: Date.now().toString(),
+                                        text: botReply,
+                                        sender: 'other',
+                                        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                                      };
+                                      setMessages(prev => [...prev, botMsg]);
+                                    }, 1000);
+                                    return;
+                                  }
+
+                                  // Use getCurrentPositionAsync with low accuracy and timeout to prevent hanging on emulators
+                                  let location = await Location.getCurrentPositionAsync({
+                                    accuracy: Location.Accuracy.Balanced,
+                                    timeout: 10000
+                                  });
+
+                                  // If timeout occurs or fails, fallback to last known
+                                  if (!location) {
+                                    location = await Location.getLastKnownPositionAsync();
+                                  }
+
+                                  if (!location) {
+                                    throw new Error("Could not get location");
+                                  }
+
+                                  const locMsg = {
+                                    id: (Date.now() + 1).toString(),
+                                    text: `📍 GPS Acquired: Lat ${location.coords.latitude.toFixed(4)}, Lon ${location.coords.longitude.toFixed(4)}`,
+                                    sender: 'other',
+                                    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                                  };
+                                  setMessages(prev => [...prev, locMsg]);
+
+                                  if (chat.isOfficial) {
+                                    setTimeout(() => {
+                                      setIsTyping(false);
+                                      const botReply = "I have received your location. Finding nearest government hospitals and clinics...\n\n1. District Hospital (2.3 km)\n2. Primary Health Center (4.1 km)\n\nWould you like directions or to book a consultation?";
+                                      const botMsg = {
+                                        id: (Date.now() + 2).toString(),
+                                        text: botReply,
+                                        sender: 'other',
+                                        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                                      };
+                                      setMessages(prev => [...prev, botMsg]);
+                                    }, 1500);
+                                  } else {
+                                    setIsTyping(false);
+                                  }
+                                } catch (error) {
+                                  console.error(error);
+                                  setTimeout(() => {
+                                    setIsTyping(false);
+                                    const botReply = "There was an error fetching your location. Please make sure your device's GPS is turned on and try again.";
+                                    const botMsg = {
+                                      id: Date.now().toString(),
+                                      text: botReply,
+                                      sender: 'other',
+                                      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                                    };
+                                    setMessages(prev => [...prev, botMsg]);
+                                  }, 1000);
+                                }
+                              })();
+                              return;
+                            }
+
                             // Automatically send this button text as a message
                             const newMsg = {
                               id: Date.now().toString(),
@@ -235,7 +321,7 @@ export default function ChatScreen({ chat, goBack, openProfile }) {
       {/* Input Bar */}
       <View style={styles.inputBar}>
         {isRecording ? (
-          <RecordingBar 
+          <RecordingBar
             onSend={(uri) => {
               sendMediaMessage({ type: 'audio', uri });
               setIsRecording(false);
