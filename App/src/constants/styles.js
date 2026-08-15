@@ -372,7 +372,8 @@ export const styles = StyleSheet.create({
   },
   chatListDetails: {
     flex: 1,
-    justifyContent: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   chatListHeader: {
     flexDirection: 'row',
@@ -391,6 +392,21 @@ export const styles = StyleSheet.create({
   chatListLastMessage: {
     fontSize: 14,
     color: '#8696a0',
+  },
+  unreadBadge: {
+    backgroundColor: '#00A884',
+    borderRadius: 10,
+    minWidth: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 4,
+    paddingHorizontal: 4,
+  },
+  unreadBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontWeight: 'bold',
   },
   actionButtonsContainer: {
     marginTop: 8,

@@ -29,10 +29,12 @@ import * as DocumentPicker from 'expo-document-picker';
 import * as Location from 'expo-location';
 import { getSimulatedResponse, mockDoctors } from '../constants/mockData';
 import { translations } from '../constants/translations';
+import { useAudioPlayer } from 'expo-audio';
 
 const languages = [
   { code: 'en', name: 'English', native: 'English' },
   { code: 'hi', name: 'Hindi', native: 'हिंदी' },
+  { code: 'bho', name: 'Bhojpuri', native: 'भोजपुरी' },
   { code: 'mr', name: 'Marathi', native: 'मराठी' },
   { code: 'bn', name: 'Bengali', native: 'বাংলা' },
   { code: 'ta', name: 'Tamil', native: 'தமிழ்' },
@@ -59,13 +61,21 @@ import { styles } from '../constants/styles';
 import RecordingBar from '../components/RecordingBar';
 import AudioMessage from '../components/AudioMessage';
 
-export default function ChatScreen({ chat, goBack, openProfile }) {
-  const [messages, setMessages] = useState(() => {
-    if (chat.id === 'ai-bot' && chat.messages && chat.messages.length > 0) {
-      return [];
+export default function ChatScreen({ chat, goBack, openProfile, onUpdateMessages }) {
+  const player = useAudioPlayer(require('../../assets/notification.wav'));
+  
+  const playSound = () => {
+    if (player) {
+      try {
+        player.seekTo(0);
+        player.play();
+      } catch (err) {
+        console.log("Sound play error:", err);
+      }
     }
-    return chat.messages || [];
-  });
+  };
+
+  const [messages, setMessages] = useState(chat.messages || []);
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
@@ -74,11 +84,33 @@ export default function ChatScreen({ chat, goBack, openProfile }) {
   const scrollViewRef = useRef(null);
 
   useEffect(() => {
-    if (chat.id === 'ai-bot' && chat.messages && chat.messages.length > 0) {
+    if (chat.id === 'ai-bot' && messages.length === 1) {
       let isMounted = true;
       
       const loadMessages = async () => {
-        for (let i = 0; i < chat.messages.length; i++) {
+        const followUps = [
+          {
+            id: 'msg-1',
+            text: translations[currentLanguage].welcome,
+            sender: 'other',
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            buttons: [
+              translations[currentLanguage].locate,
+              translations[currentLanguage].lang,
+              translations[currentLanguage].book,
+              translations[currentLanguage].doctor,
+              translations[currentLanguage].help
+            ]
+          },
+          {
+            id: 'msg-2',
+            text: translations[currentLanguage].info,
+            sender: 'other',
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+          }
+        ];
+
+        for (let i = 0; i < followUps.length; i++) {
           if (!isMounted) break;
           
           setIsTyping(true);
@@ -86,7 +118,10 @@ export default function ChatScreen({ chat, goBack, openProfile }) {
           
           if (!isMounted) break;
           setIsTyping(false);
-          setMessages(prev => [...prev, chat.messages[i]]);
+          
+          playSound();
+          
+          setMessages(prev => [...prev, followUps[i]]);
           
           await new Promise(resolve => setTimeout(resolve, 500));
         }
@@ -98,7 +133,13 @@ export default function ChatScreen({ chat, goBack, openProfile }) {
         isMounted = false;
       };
     }
-  }, [chat.id, chat.messages]);
+  }, [chat.id]);
+
+  useEffect(() => {
+    if (onUpdateMessages) {
+      onUpdateMessages(messages);
+    }
+  }, [messages]);
 
   const handleSendMessage = () => {
     if (inputText.trim() === '') return;
@@ -188,6 +229,7 @@ export default function ChatScreen({ chat, goBack, openProfile }) {
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         carouselItems: carouselItems
       };
+      playSound();
       setMessages(prev => [...prev, botMsg]);
     }, 1200);
   };
@@ -216,6 +258,7 @@ export default function ChatScreen({ chat, goBack, openProfile }) {
           time: '11:00 AM (Tele-consult)'
         }
       };
+      playSound();
       setMessages(prev => [...prev, ticketMsg]);
     }, 1500);
   };
@@ -252,6 +295,7 @@ export default function ChatScreen({ chat, goBack, openProfile }) {
           translations[langCode].help
         ]
       };
+      playSound();
       setMessages(prev => [...prev, botMsg]);
     }, 1200);
   };

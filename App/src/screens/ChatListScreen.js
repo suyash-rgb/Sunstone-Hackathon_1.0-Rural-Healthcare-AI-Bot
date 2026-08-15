@@ -22,23 +22,33 @@ export default function ChatListScreen({ chats, onSelectChat }) {
         )}
         
         <View style={styles.chatListDetails}>
-          <View style={styles.chatListHeader}>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <View style={{ flex: 1 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
               <Text style={styles.chatListName} numberOfLines={1}>{item.name}</Text>
               {item.isOfficial && <BadgeCheck size={14} color="#53BDEB" style={{ marginLeft: 4 }} fill="#fff" />}
             </View>
             {lastMessage && (
-              <Text style={styles.chatListTime}>{lastMessage.time}</Text>
+              <Text style={styles.chatListLastMessage} numberOfLines={1}>
+                {lastMessage.type === 'audio' ? '🎵 Audio message' : 
+                 lastMessage.type === 'image' ? '📷 Photo' : 
+                 lastMessage.type === 'document' ? '📄 Document' : 
+                 lastMessage.text}
+              </Text>
             )}
           </View>
-          {lastMessage && (
-            <Text style={styles.chatListLastMessage} numberOfLines={1}>
-              {lastMessage.type === 'audio' ? '🎵 Audio message' : 
-               lastMessage.type === 'image' ? '📷 Photo' : 
-               lastMessage.type === 'document' ? '📄 Document' : 
-               lastMessage.text}
-            </Text>
-          )}
+
+          <View style={{ alignItems: 'flex-end', justifyContent: 'center', marginLeft: 8 }}>
+            {lastMessage && (
+              <Text style={[styles.chatListTime, item.unreadCount > 0 && { color: '#00A884', fontWeight: 'bold' }]}>
+                {lastMessage.time}
+              </Text>
+            )}
+            {item.unreadCount > 0 && (
+              <View style={styles.unreadBadge}>
+                <Text style={styles.unreadBadgeText}>{item.unreadCount}</Text>
+              </View>
+            )}
+          </View>
         </View>
       </TouchableOpacity>
     );
