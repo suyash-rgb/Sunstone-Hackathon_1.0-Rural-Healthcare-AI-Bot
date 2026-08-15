@@ -143,3 +143,11 @@ designs/
 
 # Untracked frontend directory on main branch
 /frontend/
+
+# Untracked app and web backup directories
+/App/
+/App_web_backup/
+
+# Untracked temporary files and design assets
+/dljflsjfnksdskdncknsd
+/profile section.jpeg
