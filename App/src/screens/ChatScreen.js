@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -60,13 +60,45 @@ import RecordingBar from '../components/RecordingBar';
 import AudioMessage from '../components/AudioMessage';
 
 export default function ChatScreen({ chat, goBack, openProfile }) {
-  const [messages, setMessages] = useState(chat.messages || []);
+  const [messages, setMessages] = useState(() => {
+    if (chat.id === 'ai-bot' && chat.messages && chat.messages.length > 0) {
+      return [];
+    }
+    return chat.messages || [];
+  });
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [currentLanguage, setCurrentLanguage] = useState('en');
   const [langModalVisible, setLangModalVisible] = useState(false);
   const scrollViewRef = useRef(null);
+
+  useEffect(() => {
+    if (chat.id === 'ai-bot' && chat.messages && chat.messages.length > 0) {
+      let isMounted = true;
+      
+      const loadMessages = async () => {
+        for (let i = 0; i < chat.messages.length; i++) {
+          if (!isMounted) break;
+          
+          setIsTyping(true);
+          await new Promise(resolve => setTimeout(resolve, 1500));
+          
+          if (!isMounted) break;
+          setIsTyping(false);
+          setMessages(prev => [...prev, chat.messages[i]]);
+          
+          await new Promise(resolve => setTimeout(resolve, 500));
+        }
+      };
+
+      loadMessages();
+
+      return () => {
+        isMounted = false;
+      };
+    }
+  }, [chat.id, chat.messages]);
 
   const handleSendMessage = () => {
     if (inputText.trim() === '') return;

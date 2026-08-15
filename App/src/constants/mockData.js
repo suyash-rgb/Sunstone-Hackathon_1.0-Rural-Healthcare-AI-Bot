@@ -37,6 +37,12 @@ export const initialChats = [
     status: 'last seen today at 15.24',
     messages: [
       {
+        id: 'msg-0',
+        text: 'Hello, I am your Aarogya मित्र, an undertaking of the Ministry of Health and Family Welfare under the National Health Mission focused on providing accessible rural healthcare and tele-consultation services.',
+        sender: 'other',
+        time: '14.09'
+      },
+      {
         id: 'msg-1',
         text: 'Welcome to Aarogya Mitra! How can I assist you today?',
         sender: 'other',
