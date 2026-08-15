@@ -27,7 +27,8 @@ import {
 import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
 import * as Location from 'expo-location';
-import { getSimulatedResponse, mockDoctors, translations } from '../constants/mockData';
+import { getSimulatedResponse, mockDoctors } from '../constants/mockData';
+import { translations } from '../constants/translations';
 
 const languages = [
   { code: 'en', name: 'English', native: 'English' },
