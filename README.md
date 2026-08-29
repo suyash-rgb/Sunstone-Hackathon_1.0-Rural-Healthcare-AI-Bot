@@ -34,6 +34,10 @@ To start the Expo development server:
 ```bash
 npm start
 ```
+or <br>
+```bash
+npx expo start
+```
 *This will open the Expo Developer Tools in your browser or terminal and print a QR code.*
 
 ### Testing on your Device
