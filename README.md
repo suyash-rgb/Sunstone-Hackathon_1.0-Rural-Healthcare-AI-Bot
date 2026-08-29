@@ -14,7 +14,16 @@ All application files reside in the `App/` directory:
 - `App/package.json` — dependencies and scripts
 - `App/app.json` — Expo configuration
 - `App/App.js` — App entry point
-- `App/src/` — Source code for components, constants, and utilities
+- `App/src/` — Main source code directory
+  - `/assets/` — Images, fonts, and static assets
+  - `/components/` — Reusable React Native UI components
+  - `/constants/` — Configurations, themes, and translations (e.g. `translations.js`)
+  - `/context/` — React Context providers for global state
+  - `/hooks/` — Custom React hooks
+  - `/navigation/` — React Navigation setup
+  - `/screens/` — Full-page UI screen components
+  - `/services/` — API calls and external integrations
+  - `/utils/` — Helper functions
 
 ## Getting Started
 
