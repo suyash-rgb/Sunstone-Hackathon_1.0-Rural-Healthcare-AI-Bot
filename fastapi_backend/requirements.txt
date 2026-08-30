@@ -4,6 +4,6 @@ python-multipart
 pydantic-settings
 sqlalchemy
 easyocr
-google-generativeai
+google-genai
 pillow
 asyncmy

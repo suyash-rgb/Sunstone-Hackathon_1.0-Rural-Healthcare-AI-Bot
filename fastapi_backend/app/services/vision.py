@@ -3,7 +3,7 @@ import os
 import logging
 from PIL import Image
 import easyocr
-import google.generativeai as genai
+from google import genai
 
 logger = logging.getLogger(__name__)
 
@@ -24,15 +24,14 @@ class VisionService:
         if self.gemini_api_key:
             logger.info("Configuring Google Generative AI client with GEMINI_API_KEY...")
             try:
-                genai.configure(api_key=self.gemini_api_key)
-                self.cloud_model = genai.GenerativeModel('gemini-2.0-flash')
+                self.gemini_client = genai.Client(api_key=self.gemini_api_key)
                 logger.info("Google Generative AI client configured successfully.")
             except Exception as e:
                 logger.error(f"Failed to configure Google Generative AI client: {e}")
-                self.cloud_model = None
+                self.gemini_client = None
         else:
             logger.warning("GEMINI_API_KEY environment variable is not set. Cloud vision tasks will fail.")
-            self.cloud_model = None
+            self.gemini_client = None
 
     async def process_image(self, file_bytes: bytes, filename: str, is_document: bool) -> str:
         """
@@ -73,7 +72,7 @@ class VisionService:
 
         # --- PATH B: Cloud Image/Photo Description ---
         else:
-            if not self.cloud_model:
+            if not self.gemini_client:
                 logger.error("Cloud vision model (Gemini) is not configured.")
                 raise RuntimeError("Cloud vision analysis is unavailable. Make sure GEMINI_API_KEY is set.")
 
@@ -88,7 +87,10 @@ class VisionService:
                 )
                 
                 # Gemini SDK accepts a PIL Image object directly along with a prompt list
-                response = self.cloud_model.generate_content([prompt, image])
+                response = self.gemini_client.models.generate_content(
+                    model='gemini-2.0-flash',
+                    contents=[prompt, image]
+                )
                 return response.text.strip()
             except Exception as e:
                 logger.error(f"Error calling Gemini API for '{filename}': {e}")
