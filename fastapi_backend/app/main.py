@@ -49,7 +49,7 @@ logger = logging.getLogger(__name__)
 # --- FastAPI App Initialization ---
 
 app = FastAPI(
-    lifespan=lifespan,
+    # lifespan=lifespan,
     title="FastAPI & SQLAlchemy Async Backend"
 )
 
