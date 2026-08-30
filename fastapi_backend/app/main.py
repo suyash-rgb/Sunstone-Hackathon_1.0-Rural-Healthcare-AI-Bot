@@ -17,34 +17,34 @@ logger = logging.getLogger(__name__)
 
 # --- FastAPI Lifespan Function (Startup/Shutdown Handler) ---
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    """Handles startup (DB connection check, table creation) and shutdown events."""
+# @asynccontextmanager
+# async def lifespan(app: FastAPI):
+#     """Handles startup (DB connection check, table creation) and shutdown events."""
     
-    logger.info("Application startup: Starting database initialization...")
+#     logger.info("Application startup: Starting database initialization...")
 
-    try:
-        # **STARTUP LOGIC: Check connection and create tables**
-        async with engine.begin() as conn:
-            # Creates tables based on models defined in app.db.base (if they don't exist)
-            await conn.run_sync(Base.metadata.create_all) 
+#     try:
+#         # **STARTUP LOGIC: Check connection and create tables**
+#         async with engine.begin() as conn:
+#             # Creates tables based on models defined in app.db.base (if they don't exist)
+#             await conn.run_sync(Base.metadata.create_all) 
             
-        # Simple connection test query
-        async with engine.connect() as conn:
-             result = await conn.execute(text("SELECT 'connection alive'"))
-             logger.info(f"DB check result: {result.scalar_one()}")
+#         # Simple connection test query
+#         async with engine.connect() as conn:
+#              result = await conn.execute(text("SELECT 'connection alive'"))
+#              logger.info(f"DB check result: {result.scalar_one()}")
             
-        logger.info("Database connection verified and tables created successfully!")
+#         logger.info("Database connection verified and tables created successfully!")
         
-    except Exception as e:
-        logger.error(f"FATAL ERROR: Database connection or table creation failed: {e}")
-        # Stop the server if the database is unreachable
-        raise RuntimeError("Failed to initialize database on startup.") from e
+#     except Exception as e:
+#         logger.error(f"FATAL ERROR: Database connection or table creation failed: {e}")
+#         # Stop the server if the database is unreachable
+#         raise RuntimeError("Failed to initialize database on startup.") from e
 
-    yield # The application is ready to serve requests
+#     yield # The application is ready to serve requests
 
-    # **SHUTDOWN LOGIC (runs when Uvicorn stops)**
-    logger.info("Application shutdown complete.")
+#     # **SHUTDOWN LOGIC (runs when Uvicorn stops)**
+#     logger.info("Application shutdown complete.")
 
 # --- FastAPI App Initialization ---
 
@@ -60,6 +60,11 @@ app.include_router(vision_router, prefix="/api/v1")
 SessionDep = Annotated[AsyncSession, Depends(get_session)]
 
 # --- Test Endpoints ---
+@app.get("/" , tags=["Health Check"])
+async def root():
+    return {
+        "message": "Welcome to the ArogyaMitra Servers"
+    }
 
 @app.get("/db-status", tags=["Health Check"])
 async def check_db_connection(session: SessionDep):

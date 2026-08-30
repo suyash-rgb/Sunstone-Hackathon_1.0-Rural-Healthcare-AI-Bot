@@ -2,36 +2,44 @@ import io
 import os
 import logging
 from PIL import Image
-import easyocr
-from google import genai
 
 logger = logging.getLogger(__name__)
 
 class VisionService:
     def __init__(self):
-        # 1. Initialize EasyOCR Reader for English and Hindi on CPU (gpu=False)
-        # This keeps local VRAM usage at 0 for OCR, running entirely on system RAM/CPU.
-        logger.info("Initializing local EasyOCR reader for ['en', 'hi']...")
-        try:
-            self.ocr_reader = easyocr.Reader(['en', 'hi'], gpu=False)
-            logger.info("EasyOCR reader initialized successfully.")
-        except Exception as e:
-            logger.error(f"Failed to initialize EasyOCR reader: {e}")
-            self.ocr_reader = None
-
-        # 2. Initialize Gemini API Client for visual analysis (rash/injury description)
+        # We lazily load models to reduce FastAPI startup time.
+        self._ocr_reader = None
+        self._gemini_client = None
         self.gemini_api_key = os.environ.get("GEMINI_API_KEY")
-        if self.gemini_api_key:
-            logger.info("Configuring Google Generative AI client with GEMINI_API_KEY...")
+
+    def _get_ocr_reader(self):
+        if self._ocr_reader is None:
+            logger.info("Lazily initializing local EasyOCR reader for ['en', 'hi']...")
             try:
-                self.gemini_client = genai.Client(api_key=self.gemini_api_key)
+                # Import EasyOCR (and PyTorch) only when needed!
+                import easyocr
+                self._ocr_reader = easyocr.Reader(['en', 'hi'], gpu=False)
+                logger.info("EasyOCR reader initialized successfully.")
+            except Exception as e:
+                logger.error(f"Failed to initialize EasyOCR reader: {e}")
+                raise RuntimeError("OCR service is currently unavailable.")
+        return self._ocr_reader
+
+    def _get_gemini_client(self):
+        if self._gemini_client is None:
+            if not self.gemini_api_key:
+                logger.error("GEMINI_API_KEY environment variable is not set. Cloud vision tasks will fail.")
+                raise RuntimeError("Cloud vision analysis is unavailable. Make sure GEMINI_API_KEY is set.")
+            
+            logger.info("Lazily configuring Google Generative AI client...")
+            try:
+                from google import genai
+                self._gemini_client = genai.Client(api_key=self.gemini_api_key)
                 logger.info("Google Generative AI client configured successfully.")
             except Exception as e:
                 logger.error(f"Failed to configure Google Generative AI client: {e}")
-                self.gemini_client = None
-        else:
-            logger.warning("GEMINI_API_KEY environment variable is not set. Cloud vision tasks will fail.")
-            self.gemini_client = None
+                raise RuntimeError("Cloud vision analysis failed to initialize.")
+        return self._gemini_client
 
     async def process_image(self, file_bytes: bytes, filename: str, is_document: bool) -> str:
         """
@@ -51,14 +59,12 @@ class VisionService:
 
         # --- PATH A: Local Document OCR ---
         if is_document:
-            if not self.ocr_reader:
-                logger.error("EasyOCR reader is not initialized.")
-                raise RuntimeError("OCR service is currently unavailable.")
+            ocr_reader = self._get_ocr_reader()
             
             logger.info(f"Processing '{filename}' as a document using local EasyOCR...")
             try:
                 # EasyOCR readtext can accept a PIL Image directly
-                results = self.ocr_reader.readtext(image)
+                results = ocr_reader.readtext(image)
                 # Combine detected text lines
                 extracted_text = " ".join([text for (_, text, _) in results])
                 
@@ -72,9 +78,7 @@ class VisionService:
 
         # --- PATH B: Cloud Image/Photo Description ---
         else:
-            if not self.gemini_client:
-                logger.error("Cloud vision model (Gemini) is not configured.")
-                raise RuntimeError("Cloud vision analysis is unavailable. Make sure GEMINI_API_KEY is set.")
+            gemini_client = self._get_gemini_client()
 
             logger.info(f"Processing '{filename}' as a photograph/medical image using Gemini Cloud VLM...")
             try:
@@ -87,7 +91,7 @@ class VisionService:
                 )
                 
                 # Gemini SDK accepts a PIL Image object directly along with a prompt list
-                response = self.gemini_client.models.generate_content(
+                response = gemini_client.models.generate_content(
                     model='gemini-2.0-flash',
                     contents=[prompt, image]
                 )
