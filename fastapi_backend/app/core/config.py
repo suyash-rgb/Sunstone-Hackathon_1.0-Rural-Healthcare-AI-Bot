@@ -6,7 +6,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     # Core Application Settings
-    APP_NAME: str = "FastAPI Backend"
+    APP_NAME: str = "ArogyaMitra API Backend"
     ENVIRONMENT: str = "development"
     
     # Database Settings
