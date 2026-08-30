@@ -1,6 +1,0 @@
-feat: Hybrid Vision Service
-
-Service Layer (app/services/vision.py): Encapsulates the logic. It automatically runs local EasyOCR on CPU/RAM for documents (avoiding your 4GB VRAM limit entirely) and routes photographs to the cloud using the Gemini Flash API.
-Controller/Router Layer (app/api/vision.py): Exposes a clean POST /api/v1/vision/analyze endpoint. It instantiates the service as a singleton so that EasyOCR models are loaded only once on startup.
-App Integration (app/main.py): Registered the new endpoint under /api/v1.
-Dependencies: Added easyocr, google-generativeai, and pillow to requirements.txt and successfully installed them in your backend virtual environment.
