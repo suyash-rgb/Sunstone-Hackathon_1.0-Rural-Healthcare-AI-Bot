@@ -1,4 +1,4 @@
-import logging
+﻿import logging
 from contextlib import asynccontextmanager
 from typing import Annotated
 
@@ -9,7 +9,8 @@ from sqlalchemy import text, select
 # Import database components - THESE IMPORTS ARE NOW RESOLVED
 from app.db.base import Base, User  
 from app.db.session import engine, get_session 
-from app.api.vision import router as vision_router 
+from app.api.vision import router as vision_router
+from app.api.translation import router as translation_router 
 
 # Configure basic logging
 logging.basicConfig(level=logging.INFO)
@@ -54,7 +55,8 @@ app = FastAPI(
 )
 
 # Register routers
-app.include_router(vision_router, prefix="/api/v1")
+app.include_router(vision_router, prefix='/api/v1')
+app.include_router(translation_router, prefix='/api/v1')
 
 # Define the session type alias for clearer type hints
 SessionDep = Annotated[AsyncSession, Depends(get_session)]
