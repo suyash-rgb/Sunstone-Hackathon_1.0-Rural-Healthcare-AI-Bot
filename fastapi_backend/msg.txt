@@ -1,46 +1,8 @@
-﻿AI4Bharat dependency & compatibility paradox
+﻿refactore: Translation Service 
 
-Summary of fixes for AI4Bharat IndicTrans2 and Transformers integration:
-
-1. Microsoft C++ Build Tools:
-   - Issue: `IndicTransToolkit` failed to install due to missing C/Cython compilers on Windows.
-   - Fix: Installed Visual Studio C++ "Desktop development" workload.
-      -  You do not need to add all the C++ related build tools. To successfully compile Python packages, you only actually need two things from that list.
-
-          Keep these CHECKED (Required):
-          - MSVC Build Tools for x64/x86 (Latest) (This is the actual C++ compiler)
-          - Windows 11 SDK (This contains the essential Windows headers like windows.h)
-
-          You can UNCHECK these to save space:
-
-            - C++ CMake tools for Windows
-            - Testing tools core features - Build Tools
-            - MSVC AddressSanitizer
-            - vcpkg package manager
-          Unchecking those four should drop your total installation size down significantly!
-
-2. Transformers 5.x Import Error:
-   - Issue: `IndicTransToolkit` crashed trying to import `PreTrainedTokenizerBase` (which was removed in transformers v5).
-   - Fix: Locked `transformers==4.57.6` (latest 4.x) in requirements.txt.
-
-3. HuggingFace Gated Repo (OSError):
-   - Issue: `ai4bharat/indictrans2-en-indic-dist-200M` model is gated on HF.
-   - Fix: Authenticated locally using `huggingface-cli login` with a Read token.
-
-4. Tokenizer Recursion Error (Infinite Loop):
-   - Issue: `tokenization_indictrans.py` had a logic flaw causing an infinite recursion when checking default arguments (`self.encoder.get(token, self.unk_token_id)` calling its own property getter).
-   - Fix: Manually patched the cached `tokenization_indictrans.py` file to bypass the getter.
-
-5. Tokenizer AttributeError (__init__):
-   - Issue: `self.unk_token_id` was assigned before `self.added_tokens_decoder` was initialized, crashing the base class property setter.
-   - Fix: Manually patched the cached `tokenization_indictrans.py` file to initialize `self.added_tokens_decoder = {}` immediately in `__init__`.
-
-6. DynamicCache 'NoneType' Error (Inference):
-   - Issue: In newer transformers (>=4.36), `past_key_values` uses `DynamicCache`. AI4Bharat's `modeling_indictrans.py` explicitly expects a Tuple, throwing `AttributeError: 'NoneType' object has no attribute 'shape'` during `model.generate()`.
-   - Fix: Passed `use_cache=False` to `model.generate()` to completely bypass the broken cross-attention caching logic.
-
-7. Windows Terminal UnicodeEncodeError:
-   - Issue: PowerShell crashed trying to print Devanagari Hindi text due to `cp1252` encoding.
-   - Fix: Used `sys.stdout.reconfigure(encoding='utf-8')` for terminal test scripts, idk if that worked for me because even though the Devanagari script characters were getting displayed now but only part of strings were properly visible so i changed the editor settings to use Font-Family Cascadia Code and Nirmala UI but those didnt work either, so i just created an endpoint and tested on Swagger UI. 
-
-Note: Refactored the final working test script into `app/services/translation.py` with async threading and lazy-loading, and created the `app/api/translation.py` router.
+Key Changes:
+1. Removed default fallback languages (English/Hindi) from the `TranslationRequest` DTO and the `TranslationService` method signature to enforce strict parameter passing.
+2. Implemented robust API validation: Added checks for empty text and mapped service-level `ValueError` exceptions to clean HTTP 400 Bad Request responses.
+3. Extracted language constants: Moved the hardcoded set of 34 AI4Bharat language tags into a dedicated utility module (`app/utils/language.py`) exposing `INDIC_LANGUAGE_TAGS` and `FALLBACK_LANGUAGE`.
+4. Added intelligent language fallback: Restructured validation logic so that if a valid source language is provided but an unsupported target language is requested, the system automatically falls back to English (`eng_Latn`) instead of throwing a fatal error. This prepares the pipeline for future Qwen Finetuned delegation.
+5. Improved code readability with explicit nested `if/else` validation blocks.

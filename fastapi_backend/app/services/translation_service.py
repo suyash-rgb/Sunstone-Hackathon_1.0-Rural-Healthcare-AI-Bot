@@ -1,6 +1,8 @@
 ﻿import asyncio
 import torch
 import logging
+from app.utils.language import INDIC_LANGUAGE_TAGS, FALLBACK_LANGUAGE
+
 
 logger = logging.getLogger(__name__)
 
@@ -40,9 +42,19 @@ class TranslationService:
             self._tokenizer, self._model, self._ip, self._device = await asyncio.to_thread(_load_sync)
             logger.info(f"Translation Model successfully loaded on {self._device}!")
 
-    async def translate(self, text: str, src_lang: str = "eng_Latn", tgt_lang: str = "hin_Deva") -> str:
+    async def translate(self, text: str, src_lang: str, tgt_lang: str) -> str:
         """Translates a single string of text."""
         
+        if not text or not text.strip():
+            raise ValueError("Input text cannot be empty.")
+            
+        if src_lang in INDIC_LANGUAGE_TAGS:
+            if tgt_lang not in INDIC_LANGUAGE_TAGS:
+                logger.warning(f"Unsupported target language tag: '{tgt_lang}'. Falling back to English.")
+                tgt_lang = FALLBACK_LANGUAGE
+        else:
+            raise ValueError(f"Unsupported source language tag: '{src_lang}'")
+            
         # Ensure the model is loaded before translating
         if self._model is None:
             await self._load_models()
