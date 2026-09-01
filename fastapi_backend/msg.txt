@@ -1,8 +1,1 @@
-﻿refactore: Translation Service 
-
-Key Changes:
-1. Removed default fallback languages (English/Hindi) from the `TranslationRequest` DTO and the `TranslationService` method signature to enforce strict parameter passing.
-2. Implemented robust API validation: Added checks for empty text and mapped service-level `ValueError` exceptions to clean HTTP 400 Bad Request responses.
-3. Extracted language constants: Moved the hardcoded set of 34 AI4Bharat language tags into a dedicated utility module (`app/utils/language.py`) exposing `INDIC_LANGUAGE_TAGS` and `FALLBACK_LANGUAGE`.
-4. Added intelligent language fallback: Restructured validation logic so that if a valid source language is provided but an unsupported target language is requested, the system automatically falls back to English (`eng_Latn`) instead of throwing a fatal error. This prepares the pipeline for future Qwen Finetuned delegation.
-5. Improved code readability with explicit nested `if/else` validation blocks.
+﻿

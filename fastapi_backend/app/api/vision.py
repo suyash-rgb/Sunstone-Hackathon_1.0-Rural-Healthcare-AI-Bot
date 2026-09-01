@@ -1,6 +1,6 @@
 import logging
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Query, status
-from app.services.vision import VisionService
+from app.services.vision_service import VisionService
 
 logger = logging.getLogger(__name__)
 
