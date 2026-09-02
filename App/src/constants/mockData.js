@@ -174,3 +174,42 @@ export const mockDoctors = [
     fees: 'Free (Govt. Emplaneled)'
   }
 ];
+
+export const mockHospitals = [
+  {
+    id: 'hosp-civil',
+    name: 'District Civil Hospital',
+    tier: 'Government Tertiary Hospital',
+    distance_meters: 1200,
+    lat: 22.7196,
+    lon: 75.8577,
+    emergency: '24/7 Trauma',
+    badge: '24/7 TRAUMA',
+    services: 'ICU • Emergency • Blood Bank • OPD',
+    image: 'https://images.unsplash.com/photo-1587351021759-3e566b6af7cc?auto=format&fit=crop&w=400&h=200&q=80'
+  },
+  {
+    id: 'hosp-chc',
+    name: 'Jeevan Jyoti Community Health Centre',
+    tier: 'Community Health Centre (CHC)',
+    distance_meters: 2800,
+    lat: 22.7240,
+    lon: 75.8620,
+    emergency: 'yes',
+    badge: 'CHC FACILITY',
+    services: 'Maternity • General Ward • Ambulance',
+    image: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=400&h=200&q=80'
+  },
+  {
+    id: 'hosp-phc',
+    name: 'Primary Health Centre (PHC) Badagaon',
+    tier: 'Primary Health Centre (PHC)',
+    distance_meters: 4100,
+    lat: 22.7310,
+    lon: 75.8710,
+    emergency: 'no',
+    badge: 'PHC OPD',
+    services: 'OPD • Free Medicines • Vaccine Drive',
+    image: 'https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=400&h=200&q=80'
+  }
+];

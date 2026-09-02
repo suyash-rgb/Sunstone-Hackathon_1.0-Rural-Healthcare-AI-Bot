@@ -601,3 +601,86 @@ export const styles = StyleSheet.create({
     fontWeight: '500',
   },
 });
+
+export const hospitalCardStyles = StyleSheet.create({
+  card: {
+    width: 270,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    marginRight: 12,
+    marginVertical: 4,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  previewContainer: {
+    width: '100%',
+    height: 120,
+    position: 'relative',
+    backgroundColor: '#F1F5F9',
+  },
+  mapImage: {
+    width: '100%',
+    height: '100%',
+  },
+  badge: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
+  },
+  badgeTrauma: {
+    backgroundColor: '#DC2626',
+  },
+  badgeFacility: {
+    backgroundColor: '#0284C7',
+  },
+  badgeText: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontWeight: 'bold',
+    letterSpacing: 0.5,
+  },
+  content: {
+    padding: 12,
+  },
+  title: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#0F172A',
+    marginBottom: 2,
+  },
+  subtitle: {
+    fontSize: 12,
+    color: '#64748B',
+    fontWeight: '500',
+    marginBottom: 4,
+  },
+  services: {
+    fontSize: 11,
+    color: '#475569',
+    marginBottom: 10,
+  },
+  actionButton: {
+    backgroundColor: '#059669',
+    paddingVertical: 9,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 4,
+  },
+  buttonText: {
+    color: '#FFFFFF',
+    fontWeight: '600',
+    fontSize: 13,
+  },
+});

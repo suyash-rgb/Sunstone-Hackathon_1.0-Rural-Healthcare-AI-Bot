@@ -27,9 +27,10 @@ import {
 import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
 import * as Location from 'expo-location';
-import { getSimulatedResponse, mockDoctors } from '../constants/mockData';
+import { getSimulatedResponse, mockDoctors, mockHospitals } from '../constants/mockData';
 import { translations } from '../constants/translations';
 import { useAudioPlayer } from 'expo-audio';
+import { HospitalCard } from '../components/HospitalCard';
 
 const languages = [
   { code: 'en', name: 'English', native: 'English' },
@@ -463,18 +464,19 @@ export default function ChatScreen({ chat, goBack, openProfile, onUpdateMessages
                                   setMessages(prev => [...prev, locMsg]);
                                   
                                   if (chat.isOfficial) {
-                                    setTimeout(() => {
-                                      setIsTyping(false);
-                                      const botReply = translations[currentLanguage].locReply;
-                                      const botMsg = {
-                                        id: (Date.now() + 2).toString(),
-                                        text: botReply,
-                                        sender: 'other',
-                                        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                                      };
-                                      setMessages(prev => [...prev, botMsg]);
-                                    }, 1500);
-                                  } else {
+                                     setTimeout(() => {
+                                       setIsTyping(false);
+                                       const botReply = translations[currentLanguage].locReply;
+                                       const botMsg = {
+                                         id: (Date.now() + 2).toString(),
+                                         text: botReply,
+                                         sender: 'other',
+                                         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                                         hospitalCarouselItems: mockHospitals
+                                       };
+                                       setMessages(prev => [...prev, botMsg]);
+                                     }, 1500);
+                                   } else {
                                       setIsTyping(false);
                                   }
                                 } catch (error) {
@@ -524,6 +526,18 @@ export default function ChatScreen({ chat, goBack, openProfile, onUpdateMessages
                     {isMe && <CheckCheck size={14} color="#53bdeb" style={styles.checkIcon} />}
                   </View>
                 </View>
+
+                {msg.hospitalCarouselItems && (
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    style={styles.carouselContainer}
+                  >
+                    {msg.hospitalCarouselItems.map((hosp) => (
+                      <HospitalCard key={hosp.id} hospital={hosp} />
+                    ))}
+                  </ScrollView>
+                )}
 
                 {msg.carouselItems && (
                   <ScrollView
