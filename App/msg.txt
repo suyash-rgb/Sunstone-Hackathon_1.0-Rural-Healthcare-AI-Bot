@@ -1,0 +1,7 @@
+fix: high-precision GPS values for latitude, longitude
+
+4 decimal places (0.0001°): Precision is ~11.1 meters (36 feet). This can mean the difference between pin-pointing a hospital building versus being on the wrong side of the road or adjacent plot.
+5 decimal places (0.00001°): Precision is ~1.11 meters (3.6 feet). Distinguishes individual building entrances.
+6 decimal places (0.000001°): Precision is ~0.11 meters / 11 centimeters (4.3 inches). This is standard for precise GPS navigation applications (Google Maps, Uber, Emergency Response).
+
+updated location.coords.latitude.toFixed(4) to location.coords.latitude.toFixed(6) (and similarly for longitude) in ChatScreen.js so that full high-precision GPS values are passed cleanly.

@@ -64,7 +64,7 @@ import AudioMessage from '../components/AudioMessage';
 
 export default function ChatScreen({ chat, goBack, openProfile, onUpdateMessages }) {
   const player = useAudioPlayer(require('../../assets/notification.wav'));
-  
+
   const playSound = () => {
     if (player) {
       try {
@@ -87,7 +87,7 @@ export default function ChatScreen({ chat, goBack, openProfile, onUpdateMessages
   useEffect(() => {
     if (chat.id === 'ai-bot' && messages.length === 1) {
       let isMounted = true;
-      
+
       const loadMessages = async () => {
         const followUps = [
           {
@@ -113,17 +113,17 @@ export default function ChatScreen({ chat, goBack, openProfile, onUpdateMessages
 
         for (let i = 0; i < followUps.length; i++) {
           if (!isMounted) break;
-          
+
           setIsTyping(true);
           await new Promise(resolve => setTimeout(resolve, 1500));
-          
+
           if (!isMounted) break;
           setIsTyping(false);
-          
+
           playSound();
-          
+
           setMessages(prev => [...prev, followUps[i]]);
-          
+
           await new Promise(resolve => setTimeout(resolve, 500));
         }
       };
@@ -267,7 +267,7 @@ export default function ChatScreen({ chat, goBack, openProfile, onUpdateMessages
   const handleSelectLanguage = (langCode) => {
     setLangModalVisible(false);
     setCurrentLanguage(langCode);
-    
+
     // 1. Post user confirmation message
     const confirmText = translations[langCode].confirmLang;
     const userMsg = {
@@ -277,7 +277,7 @@ export default function ChatScreen({ chat, goBack, openProfile, onUpdateMessages
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
     setMessages(prev => [...prev, userMsg]);
-    
+
     // 2. Bot welcomes in new language + provides updated buttons
     setIsTyping(true);
     setTimeout(() => {
@@ -372,7 +372,7 @@ export default function ChatScreen({ chat, goBack, openProfile, onUpdateMessages
                     </View>
                   )}
                   {msg.type === 'audio' && <AudioMessage uri={msg.uri} />}
-                  
+
                   {msg.type === 'ticket' && msg.ticketData && (
                     <View style={styles.ticketContainer}>
                       <View style={styles.ticketHeader}>
@@ -441,43 +441,43 @@ export default function ChatScreen({ chat, goBack, openProfile, onUpdateMessages
                                     }, 1000);
                                     return;
                                   }
-                                  
+
                                   let location = await Location.getCurrentPositionAsync({
                                     accuracy: Location.Accuracy.Balanced,
                                     timeout: 10000
                                   });
 
                                   if (!location) {
-                                      location = await Location.getLastKnownPositionAsync();
+                                    location = await Location.getLastKnownPositionAsync();
                                   }
-                                  
+
                                   if (!location) {
-                                      throw new Error("Could not get location");
+                                    throw new Error("Could not get location");
                                   }
-                                  
+
                                   const locMsg = {
                                     id: (Date.now() + 1).toString(),
-                                    text: `${translations[currentLanguage].locAcquired.replace('{lat}', location.coords.latitude.toFixed(4)).replace('{lon}', location.coords.longitude.toFixed(4))}`,
+                                    text: `${translations[currentLanguage].locAcquired.replace('{lat}', location.coords.latitude.toFixed(6)).replace('{lon}', location.coords.longitude.toFixed(6))}`,
                                     sender: 'me',
                                     time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                                   };
                                   setMessages(prev => [...prev, locMsg]);
-                                  
+
                                   if (chat.isOfficial) {
-                                     setTimeout(() => {
-                                       setIsTyping(false);
-                                       const botReply = translations[currentLanguage].locReply;
-                                       const botMsg = {
-                                         id: (Date.now() + 2).toString(),
-                                         text: botReply,
-                                         sender: 'other',
-                                         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                                         hospitalCarouselItems: mockHospitals
-                                       };
-                                       setMessages(prev => [...prev, botMsg]);
-                                     }, 1500);
-                                   } else {
+                                    setTimeout(() => {
                                       setIsTyping(false);
+                                      const botReply = translations[currentLanguage].locReply;
+                                      const botMsg = {
+                                        id: (Date.now() + 2).toString(),
+                                        text: botReply,
+                                        sender: 'other',
+                                        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                                        hospitalCarouselItems: mockHospitals
+                                      };
+                                      setMessages(prev => [...prev, botMsg]);
+                                    }, 1500);
+                                  } else {
+                                    setIsTyping(false);
                                   }
                                 } catch (error) {
                                   console.error(error);
@@ -629,9 +629,9 @@ export default function ChatScreen({ chat, goBack, openProfile, onUpdateMessages
         animationType="slide"
         onRequestClose={() => setLangModalVisible(false)}
       >
-        <TouchableOpacity 
-          style={styles.modalOverlay} 
-          activeOpacity={1} 
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
           onPress={() => setLangModalVisible(false)}
         >
           <View style={styles.modalContentContainer}>
