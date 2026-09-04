@@ -1,4 +1,4 @@
-we decided on a hybrid approach due to your 4GB VRAM hardware constraint:
+I decided on a hybrid approach for the VisionService due to the low VRAM hardware constraint:
 
 EasyOCR (Local CPU): Used for reading text off of documents, prescriptions, and handwritten notes.
 
@@ -124,3 +124,46 @@ Even with 10 people actively testing the app, they won't all hit the "Send" butt
 * **Synthetic Stress Test (10 Simultaneous Requests):**
 If 10 people click "Send" at the exact same second, your backend holds 10 active KV cache slots and processes queue batches simultaneously.
 * *Actual Peak RAM:* **~4.5 GB** on the optimized stack.
+
+Call it from the **Server-Side (FastAPI)**, executed **asynchronously in parallel** with your voice pipeline.
+
+While calling an API directly from React Native often feels like it would save a network hop, in AarogyaMitra's architecture, server-side execution is actually faster, more reliable, and completely eliminates perceptual latency.
+
+---
+
+### Why Server-Side Wins for Low Latency
+
+When the user taps the emergency button and speaks, React Native sends both the **audio snippet** and the user's **GPS coordinates** `(lat, lon)` in a single POST request or WebSocket frame to FastAPI.
+
+Because STT and translation take ~400ms to 800ms, FastAPI can fetch hospitals **in the background concurrently**:
+
+```
+Client sends: [Audio Data + Lat/Lon]
+                     │
+       ┌─────────────┴─────────────┐
+       ▼                           ▼
+[ Task 1: Audio Pipeline ]   [ Task 2: Hospital Fetch ]
+IndicConformer STT (~400ms)  Ola Maps / Cache (~60ms - 150ms)
+IndicTrans2 NMT    (~200ms)               │
+       │                                  │
+       ▼                                  ▼
+[ Both ready! Hospital data is already cached in memory ]
+                     │
+                     ▼
+[ LLM & TTS: "I found City Hospital 1.2km away. First aid steps: ..." ]
+
+```
+
+* **Perceived Hospital Latency = 0 ms:** The hospital query finishes *long before* STT and translation are done. You pay zero extra waiting time.
+* **Server-to-Server Network Speed:** Cloud servers communicate with Ola Maps and OSM backbones over low-latency datacenter pipes, which is significantly faster and more stable than a mobile device on fluctuating 4G/5G in India.
+
+---
+
+### Comparison: Client-Side vs. Server-Side
+
+| Factor | Client-Side (React Native) | Server-Side (FastAPI) |
+| --- | --- | --- |
+| **Perceived Latency** | Sequential or separate stream; mobile radio latency | **0 ms added latency** (runs parallel to STT) |
+| **API Key Security** | ❌ **High Risk:** Ola Maps key is compiled into the APK and easily extracted via reverse engineering | 🟢 **100% Secure:** S
+
+By doing this on the server, React Native only needs to manage **one clean request/response cycle**, the API keys remain protected, and the emergency data arrives fully synchronized with the voice instructions.
