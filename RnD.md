@@ -125,6 +125,8 @@ Even with 10 people actively testing the app, they won't all hit the "Send" butt
 If 10 people click "Send" at the exact same second, your backend holds 10 active KV cache slots and processes queue batches simultaneously.
 * *Actual Peak RAM:* **~4.5 GB** on the optimized stack.
 
+# Nearby Hospitals (CHCs, PHCs etc) finding functionality via External APIs
+
 Call it from the **Server-Side (FastAPI)**, executed **asynchronously in parallel** with your voice pipeline.
 
 While calling an API directly from React Native often feels like it would save a network hop, in AarogyaMitra's architecture, server-side execution is actually faster, more reliable, and completely eliminates perceptual latency.
@@ -167,3 +169,80 @@ IndicTrans2 NMT    (~200ms)               │
 | **API Key Security** | ❌ **High Risk:** Ola Maps key is compiled into the APK and easily extracted via reverse engineering | 🟢 **100% Secure:** S
 
 By doing this on the server, React Native only needs to manage **one clean request/response cycle**, the API keys remain protected, and the emergency data arrives fully synchronized with the voice instructions.
+
+# Olamaps Krutrim Cloud API - Quick Reference
+
+### 1. Difference: `nearbysearch` vs. `nearbysearch/advanced`
+
+Both endpoints take the same core parameters (`location`, `radius`, `types`), but they differ in payload depth and network efficiency:
+
+* **Standard `nearbysearch` (Lightweight):**
+* Returns basic spatial identifiers: `name`, `place_id`, `distance_meters`, `geometry` (coordinates), and `structured_formatting`.
+* Excludes contact info, desk numbers, or opening hours. To obtain a facility's phone number, you would need to make a second HTTP call to `/places/v1/details` using the `place_id`.
+
+
+* **`nearbysearch/advanced` (Enriched):**
+* Returns the same spatial fields plus enriched business metadata: `formatted_phone_number`, `international_phone_number`, `opening_hours`, and user ratings in the initial response.
+* Eliminates the need for a secondary `/places/v1/details` call when contact numbers are available in Ola's database.
+
+
+
+---
+
+### 2. Understanding The Healthcare Hierarchy
+
+In India, public healthcare follows a defined referral hierarchy:
+
+```
+[ Tier 1: Sub-Centre / Ayushman Arogya Mandir ] ──► Village level (3,000–5,000 pop.)
+                     │
+[ Tier 2: Primary Health Centre (PHC) ]          ──► Gram Panchayat (20,000–30,000 pop.)
+                     │                               Basic OPD, 4–6 beds, 1 MO doctor
+[ Tier 3: Community Health Centre (CHC) ]        ──► Block / Tehsil level (80,000–120,000 pop.)
+                     │                               30 beds, basic surgery, emergency
+[ Tier 4: Sub-District / Civil Hospital ]        ──► Sub-division headquarters
+                     │
+[ Tier 5: District Hospital (e.g., Bhoj Hospital) ]──► District Headquarters (Apex facility)
+                                                     100–500 beds, 24/7 trauma, ICU, 
+                                                     blood bank, and specialist surgeons
+
+```
+
+District Bhoj Hospital is the **District Hospital (जिला चिकित्सालय)** for Dhar. For critical trauma or severe emergencies, it provides higher capabilities than a PHC or CHC.
+
+---
+
+### 3. How to Specifically Surface Rural CHCs & PHCs
+
+In the previous test, CHCs and PHCs were omitted for two structural reasons:
+
+1. **Category Tagging:** Small rural health clinics and PHCs are frequently indexed under **`types=clinic`**, while only large facilities receive the `types=hospital` classification.
+2. **Geographical Distribution:** CHCs and PHCs are spaced across rural blocks and sub-districts (e.g., Tirla, Nalchha). Searching within a 5 km radius around Dhar municipal center targets urban facilities. Expanding the query to **10 km – 15 km** (`radius=15000`) captures surrounding block centers.
+
+To ensure both large district facilities and rural centers are retrieved:
+
+* Query both `types=hospital` and `types=clinic` in parallel, or rely on the combined Overpass OSM query (`amenity=hospital` + `amenity=clinic` + `healthcare=centre`).
+
+---
+
+### 4. Background Government-First Prioritization Logic
+
+To rank government facilities at the top of the React Native carousel while retaining proximity-based ordering within each tier, implement a **weighted classification pipeline** in FastAPI.
+
+```
+[ Incoming Facilities List from Ola / OSM ]
+                    │
+                    ▼
+       [ Government Classifier ]
+   (Keyword regex + OSM Operator Tags)
+                    │
+                    ▼
+          [ Dual-Key Sort ]
+  Key: (0 if Govt else 1, distance_meters)
+                    │
+       ┌────────────┴────────────┐
+       ▼                         ▼
+ [ Tier 1: Govt Facilities ]   [ Tier 2: Private Facilities ]
+ (Sorted by nearest first)     (Sorted by nearest first)
+
+```
