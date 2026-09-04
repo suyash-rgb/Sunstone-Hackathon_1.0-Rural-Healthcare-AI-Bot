@@ -44,3 +44,10 @@ To keep the development environments clean and avoid file-tracking conflicts, th
 3. **whatsapp-simulation (Web Frontend)**: Contains the **React (Vite)** web application for quick browser-based simulation testing.
 
 > **Note:** Because these branches track completely different tech stacks, they deliberately ignore each others directories. If you want to work on the backend and frontend simultaneously, it is recommended to clone the repository into two separate folders on your local machine (e.g., one folder on the main branch, and another on the whatsapp-app-simulation branch).
+
+---
+
+## 🔗 Sources/Resources
+
+*(Add your external APIs, datasets, documentation links, and other references here)*
+

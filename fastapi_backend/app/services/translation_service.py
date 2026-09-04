@@ -7,6 +7,7 @@ from app.utils.language import INDIC_LANGUAGE_TAGS, FALLBACK_LANGUAGE
 logger = logging.getLogger(__name__)
 
 class TranslationService:
+    
     def __init__(self, model_name="ai4bharat/indictrans2-en-indic-dist-200M"):
         self.model_name = model_name
         self._model = None
