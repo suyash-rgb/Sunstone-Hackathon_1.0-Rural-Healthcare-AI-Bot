@@ -247,7 +247,7 @@ To rank government facilities at the top of the React Native carousel while reta
 
 ```
 
-# OpenStreetMap - Overpass QL (Query Langugage)
+# OpenStreetMap - Overpass QL (Query Language)
 
 OpenStreetMap does not use standard relational tables (like PostgreSQL/MySQL). Instead, the entire planet's map is stored as a massive spatial graph made of only three primitive elements:
 

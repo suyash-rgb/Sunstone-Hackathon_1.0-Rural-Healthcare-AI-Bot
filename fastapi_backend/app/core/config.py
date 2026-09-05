@@ -1,8 +1,6 @@
-# app/config.py
+# app/core/config.py
 from pydantic_settings import BaseSettings, SettingsConfigDict
-
-# Pydantic's PostgresDsn type can be used for stricter validation if desired, 
-# but a simple str is sufficient for a generic connection string.
+from typing import Optional
 
 class Settings(BaseSettings):
     # Core Application Settings
@@ -10,15 +8,25 @@ class Settings(BaseSettings):
     ENVIRONMENT: str = "development"
     
     # Database Settings
-    DATABASE_URL: str 
+    DATABASE_URL: Optional[str] = None
     
-    # Configuration for Pydantic Settings
-    # This tells BaseSettings to look for a .env file
+    # Ola Maps API Settings
+    OLA_MAPS_KRUTRIM_CLOUD_API_KEY: Optional[str] = None
+    OLA_MAPS_KRUTRIM_CLOUD_API_BASE_URL: str = "https://api.olamaps.io"
+
+    @property
+    def resolved_ola_maps_api_key(self) -> str:
+        return self.OLA_MAPS_KRUTRIM_CLOUD_API_KEY or ""
+
+    @property
+    def resolved_ola_maps_base_url(self) -> str:
+        return self.OLA_MAPS_KRUTRIM_CLOUD_API_BASE_URL or "https://api.olamaps.io"
+
     model_config = SettingsConfigDict(
         env_file=".env", 
-        env_file_encoding='utf-8',
-        case_sensitive=True # Good practice for environment variables
+        env_file_encoding="utf-8",
+        case_sensitive=True,
+        extra="ignore"
     )
 
-# Instantiate the settings object (singleton pattern is often used for settings)
 settings = Settings()
