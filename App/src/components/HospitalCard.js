@@ -31,7 +31,7 @@ export const HospitalCard = ({ hospital }) => {
         />
         <View style={[styles.badge, isEmergency ? styles.badgeTrauma : styles.badgeFacility]}>
           <Text style={styles.badgeText}>
-            {isEmergency ? '24/7 TRAUMA' : (hospital.badge || 'CHC FACILITY')}
+            {isEmergency ? '24/7 TRAUMA' : (hospital.badge || (hospital.is_government ? 'GOVT. FACILITY' : 'PRIVATE CLINIC'))}
           </Text>
         </View>
       </Pressable>
@@ -41,7 +41,7 @@ export const HospitalCard = ({ hospital }) => {
           {hospital.name}
         </Text>
         <Text style={styles.subtitle}>
-          {hospital.tier || 'Medical Centre'} • {distanceKm} km away
+          {(hospital.facility_tier || hospital.tier || 'Medical Centre')} • {distanceKm} km away
         </Text>
         {hospital.services ? (
           <Text style={styles.services} numberOfLines={1}>
