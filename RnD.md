@@ -246,3 +246,54 @@ To rank government facilities at the top of the React Native carousel while reta
  (Sorted by nearest first)     (Sorted by nearest first)
 
 ```
+
+# OpenStreetMap - Overpass QL (Query Langugage)
+
+OpenStreetMap does not use standard relational tables (like PostgreSQL/MySQL). Instead, the entire planet's map is stored as a massive spatial graph made of only three primitive elements:
+
+1. **`node`**: A single point on earth with a specific `lat` and `lon` (e.g., a tree, an ATM, or a small clinic pin).
+2. **`way`**: An ordered sequence of nodes forming a line or polygon (e.g., a road, a river, or a hospital building footprint).
+3. **`relation`**: A group of nodes and ways combined together (e.g., a large hospital campus with multiple buildings and entry gates).
+
+Because buildings are often stored as polygon boundaries (`ways`) rather than single points (`nodes`), standard SQL queries would be overly complex. Overpass QL was designed to filter this graph spatially in a single pass.
+
+---
+
+### Anatomy of an Overpass QL Query
+
+Here is the breakdown of how the query works piece by piece:
+
+```text
+// 1. Settings Header: Return JSON and halt if it takes more than 10s
+[out:json][timeout:10];
+
+// 2. Union Block: Parentheses act like an "OR" / union of multiple searches
+(
+  // Find all point markers tagged amenity=hospital within 5000m of (lat, lon)
+  node["amenity"="hospital"](around:5000, 22.6057, 75.3201);
+
+  // Find all hospital building outlines within 5000m
+  way["amenity"="hospital"](around:5000, 22.6057, 75.3201);
+
+  // Find all clinics and PHCs
+  node["amenity"="clinic"](around:5000, 22.6057, 75.3201);
+  way["healthcare"="centre"](around:5000, 22.6057, 75.3201);
+);
+
+// 3. Output Directive: Print results, and calculate the center point for building outlines
+out center;
+
+```
+
+---
+
+### The 4 Symbols You Need to Know
+
+| Syntax | What It Means | Example |
+| --- | --- | --- |
+| `[...]` | **Execution settings or tag filters** | `[out:json]` (return JSON), `["amenity"="hospital"]` (filter tag) |
+| `(...)` | **Union (OR)** or **Spatial bounds** | `(around:5000, lat, lon)` (search radius), `( node...; way...; );` (combine results) |
+| `;` | **End of statement** | Every command in Overpass QL **must** end with a semicolon `;` |
+| `out center;` | **Output modifier** | Computes the center `lat`/`lon` for building shapes so your app doesn't have to parse raw polygon boundary nodes |
+
+
