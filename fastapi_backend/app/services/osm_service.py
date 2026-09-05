@@ -19,7 +19,7 @@ class OSMService:
             "https://overpass.nchc.org.tw/api/interpreter"
         ]
         self.headers = {
-            "User-Agent": "AarogyaMitra-EmergencyApp/1.0 (Contact: healthcare@aarogyamitra.org)"
+            "User-Agent": "AarogyaMitra-EmergencyApp/1.0"
         }
 
     async def get_nearby_facilities(
