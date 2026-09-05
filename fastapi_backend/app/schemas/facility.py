@@ -11,6 +11,8 @@ class MedicalFacility(BaseModel):
     lon: float
     is_government: bool
     facility_tier: str
+    tier: Optional[str] = None
+    badge: Optional[str] = None
     phone: Optional[str] = None
     open_now: Optional[bool] = None
     google_maps_url: str

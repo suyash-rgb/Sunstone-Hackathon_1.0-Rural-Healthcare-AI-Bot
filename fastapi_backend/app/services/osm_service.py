@@ -7,7 +7,7 @@ from typing import List, Tuple, Optional
 
 import httpx
 from app.schemas.facility import MedicalFacility
-from app.core.utils import haversine_distance, classify_facility
+from app.core.utils import haversine_distance, classify_facility, is_relevant_healthcare_facility, deduplicate_facilities
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +26,9 @@ class OSMService:
         self,
         lat: float,
         lon: float,
-        radius: int = 5000
+        radius: int = 5000,
+        facility_type: str = "all",
+        exclude_specialty: bool = True
     ) -> List[MedicalFacility]:
         logger.info(f"[OSM Hybrid Fallback] Querying Overpass API for lat={lat}, lon={lon}, radius={radius}m...")
 
@@ -45,7 +47,6 @@ out center;"""
         async with httpx.AsyncClient() as client:
             for endpoint in self.endpoints:
                 try:
-                    # Try GET request first
                     response = await client.get(
                         endpoint,
                         params={"data": overpass_query},
@@ -58,7 +59,6 @@ out center;"""
                         logger.info(f"[OSM Overpass] Successfully fetched {len(raw_elements)} elements from {endpoint}")
                         break
                     else:
-                        # Try POST request fallback
                         response_post = await client.post(
                             endpoint,
                             data={"data": overpass_query},
@@ -123,10 +123,17 @@ out center;"""
             if not address:
                 address = "Rural Healthcare Center / OpenStreetMap"
 
+            if exclude_specialty and not is_relevant_healthcare_facility(name, address, tags):
+                logger.info(f"[OSM Filter] Excluded non-general facility: {name}")
+                continue
+
             dist_m = haversine_distance(lat, lon, fac_lat, fac_lon)
             dist_km = round(dist_m / 1000.0, 2)
 
-            is_govt, tier = classify_facility(name, address, tags)
+            is_govt, tier, badge = classify_facility(name, address, tags)
+
+            if facility_type.lower() == "government" and not is_govt:
+                continue
 
             phone = tags.get("phone") or tags.get("contact:phone") or tags.get("phone:mobile")
             google_maps_url = f"https://www.google.com/maps/dir/?api=1&destination={fac_lat},{fac_lon}"
@@ -141,6 +148,8 @@ out center;"""
                 lon=fac_lon,
                 is_government=is_govt,
                 facility_tier=tier,
+                tier=tier,
+                badge=badge,
                 phone=phone,
                 open_now=None,
                 google_maps_url=google_maps_url
@@ -148,6 +157,7 @@ out center;"""
             facilities.append(facility)
             seen_ids.add(place_id)
 
+        facilities = deduplicate_facilities(facilities)
         facilities.sort(key=lambda x: (0 if x.is_government else 1, x.distance_meters))
         return facilities
 

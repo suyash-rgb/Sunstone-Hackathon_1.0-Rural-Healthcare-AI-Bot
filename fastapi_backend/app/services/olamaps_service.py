@@ -10,17 +10,17 @@ import httpx
 from app.core.config import settings
 from app.schemas.facility import MedicalFacility
 from app.services.osm_service import osm_service
-from app.core.utils import haversine_distance, classify_facility
+from app.core.utils import haversine_distance, classify_facility, is_relevant_healthcare_facility, deduplicate_facilities
 
 logger = logging.getLogger(__name__)
 
 class TTLCache:
     def __init__(self, ttl_seconds: int = 600):
         self.ttl = ttl_seconds
-        self.cache: Dict[Tuple[float, float], Tuple[float, List[MedicalFacility]]] = {}
+        self.cache: Dict[Tuple[float, float, str, bool], Tuple[float, List[MedicalFacility]]] = {}
         self._lock = asyncio.Lock()
 
-    async def get(self, key: Tuple[float, float]) -> Optional[List[MedicalFacility]]:
+    async def get(self, key: Tuple[float, float, str, bool]) -> Optional[List[MedicalFacility]]:
         async with self._lock:
             if key in self.cache:
                 timestamp, data = self.cache[key]
@@ -29,7 +29,7 @@ class TTLCache:
                 del self.cache[key]
             return None
 
-    async def set(self, key: Tuple[float, float], value: List[MedicalFacility]):
+    async def set(self, key: Tuple[float, float, str, bool], value: List[MedicalFacility]):
         async with self._lock:
             self.cache[key] = (time.time(), value)
 
@@ -78,9 +78,11 @@ class OlaMapsService:
         self,
         lat: float,
         lon: float,
-        radius: int = 5000
+        radius: int = 5000,
+        facility_type: str = "all",
+        exclude_specialty: bool = True
     ) -> List[MedicalFacility]:
-        cache_key = (round(lat, 2), round(lon, 2))
+        cache_key = (round(lat, 2), round(lon, 2), facility_type.lower(), exclude_specialty)
         cached_results = await facility_cache.get(cache_key)
         if cached_results is not None:
             logger.info(f"Cache HIT for coordinates {cache_key}")
@@ -138,6 +140,10 @@ class OlaMapsService:
                 name = item.get("name") or item.get("structured_formatting", {}).get("main_text") or "Healthcare Facility"
                 address = item.get("formatted_address") or item.get("description") or item.get("structured_formatting", {}).get("secondary_text") or ""
 
+                if exclude_specialty and not is_relevant_healthcare_facility(name, address):
+                    logger.info(f"Filtered out non-general facility: {name}")
+                    continue
+
                 dist_m = item.get("distance_meters") or item.get("distance")
                 if dist_m is None:
                     dist_m = haversine_distance(lat, lon, fac_lat, fac_lon)
@@ -146,7 +152,10 @@ class OlaMapsService:
 
                 dist_km = round(dist_m / 1000.0, 2)
 
-                is_govt, tier = classify_facility(name, address)
+                is_govt, tier, badge = classify_facility(name, address)
+
+                if facility_type.lower() == "government" and not is_govt:
+                    continue
 
                 phone = item.get("formatted_phone_number") or item.get("international_phone_number") or item.get("phone")
                 open_now = None
@@ -166,6 +175,8 @@ class OlaMapsService:
                     lon=fac_lon,
                     is_government=is_govt,
                     facility_tier=tier,
+                    tier=tier,
+                    badge=badge,
                     phone=phone,
                     open_now=open_now,
                     google_maps_url=google_maps_url
@@ -176,7 +187,9 @@ class OlaMapsService:
 
         if len(facilities) == 0:
             logger.warning(f"[Hybrid Fallback Triggered] Ola Maps returned 0 results or failed. Falling back to OpenStreetMap Overpass API for lat={lat}, lon={lon}...")
-            facilities = await osm_service.get_nearby_facilities(lat, lon, radius)
+            facilities = await osm_service.get_nearby_facilities(lat, lon, radius, facility_type=facility_type, exclude_specialty=exclude_specialty)
+        else:
+            facilities = deduplicate_facilities(facilities)
 
         facilities.sort(key=lambda x: (0 if x.is_government else 1, x.distance_meters))
 
