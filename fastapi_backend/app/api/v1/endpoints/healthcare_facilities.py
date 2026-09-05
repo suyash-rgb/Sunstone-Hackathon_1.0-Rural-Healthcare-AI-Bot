@@ -3,7 +3,7 @@ from fastapi import APIRouter, Query, HTTPException
 from app.schemas.facility import FacilityDiscoveryResponse
 from app.services.olamaps_service import olamaps_service
 
-router = APIRouter(prefix="/facilities", tags=["Facilities"])
+router = APIRouter(prefix="/healthcare-facilities", tags=["Healthcare Facility Discovery"])
 
 @router.get("/nearby", response_model=FacilityDiscoveryResponse)
 async def get_nearby_facilities(

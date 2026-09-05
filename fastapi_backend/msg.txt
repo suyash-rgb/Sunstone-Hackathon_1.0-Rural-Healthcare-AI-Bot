@@ -1,1 +1,5 @@
-﻿
+﻿refactor: correct naming for external API powered capabilities
+
+The dedicated router file for olamaps_service & osm_service was (app/api/v1/endpoints/facilities.py). I updated the router configuration so that it now correctly tags all related endpoints under "Healthcare Facility Discovery".
+
+Successfully moved both translation.py and vision.py into the app/api/v1/endpoints/ directory and updated usages.

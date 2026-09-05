@@ -9,9 +9,9 @@ from sqlalchemy import text, select
 # Import database components - THESE IMPORTS ARE NOW RESOLVED
 from app.db.base import Base, User  
 from app.db.session import engine, get_session 
-from app.api.vision import router as vision_router
-from app.api.translation import router as translation_router
-from app.api.v1.endpoints.facilities import router as facilities_router 
+from app.api.v1.endpoints.vision import router as vision_router
+from app.api.v1.endpoints.translation import router as translation_router
+from app.api.v1.endpoints.healthcare_facilities import router as healthcare_facilities_router 
 
 # Configure basic logging
 logging.basicConfig(level=logging.INFO)
@@ -58,7 +58,7 @@ app = FastAPI(
 # Register routers
 app.include_router(vision_router, prefix='/api/v1')
 app.include_router(translation_router, prefix='/api/v1')
-app.include_router(facilities_router, prefix='/api/v1')
+app.include_router(healthcare_facilities_router, prefix='/api/v1')
 
 # Define the session type alias for clearer type hints
 SessionDep = Annotated[AsyncSession, Depends(get_session)]
