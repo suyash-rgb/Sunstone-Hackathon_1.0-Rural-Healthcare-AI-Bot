@@ -10,6 +10,7 @@ import httpx
 from app.core.config import settings
 from app.schemas.facility import MedicalFacility
 from app.services.osm_service import osm_service
+from app.core.utils import haversine_distance, classify_facility
 
 logger = logging.getLogger(__name__)
 
@@ -34,42 +35,10 @@ class TTLCache:
 
 facility_cache = TTLCache(ttl_seconds=600)
 
-def haversine_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> int:
-    R = 6371000
-    phi1 = math.radians(lat1)
-    phi2 = math.radians(lat2)
-    delta_phi = math.radians(lat2 - lat1)
-    delta_lambda = math.radians(lon2 - lon1)
-
-    a = math.sin(delta_phi / 2.0) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(delta_lambda / 2.0) ** 2
-    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-    return int(R * c)
-
 class OlaMapsService:
     def __init__(self):
         self.base_url = settings.resolved_ola_maps_base_url.rstrip("/")
         self.api_key = settings.resolved_ola_maps_api_key
-
-    def _classify_facility(self, name: str, address: str) -> Tuple[bool, str]:
-        text = f"{name} {address}".lower()
-
-        if re.search(r"\bphc\b", text) or "primary health" in text:
-            return True, "Govt. PHC (Primary Health Centre)"
-
-        if re.search(r"\bchc\b", text) or "community health" in text:
-            return True, "Govt. CHC (Community Health Centre)"
-
-        if "district" in text or "civil" in text or "bhoj hospital" in text:
-            return True, "Govt. District / Civil Hospital"
-
-        govt_keywords = [
-            "govt", "government", "sub-district", "swasthya kendra",
-            "arogya mandir", "sarkari"
-        ]
-        if any(kw in text for kw in govt_keywords):
-            return True, "Govt. Healthcare Facility"
-
-        return False, "Private Hospital / Clinic"
 
     async def _fetch_places_by_type(
         self,
@@ -177,7 +146,7 @@ class OlaMapsService:
 
                 dist_km = round(dist_m / 1000.0, 2)
 
-                is_govt, tier = self._classify_facility(name, address)
+                is_govt, tier = classify_facility(name, address)
 
                 phone = item.get("formatted_phone_number") or item.get("international_phone_number") or item.get("phone")
                 open_now = None
