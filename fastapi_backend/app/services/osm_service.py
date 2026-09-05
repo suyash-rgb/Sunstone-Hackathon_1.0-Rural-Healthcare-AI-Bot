@@ -30,7 +30,7 @@ class OSMService:
     ) -> List[MedicalFacility]:
         logger.info(f"[OSM Hybrid Fallback] Querying Overpass API for lat={lat}, lon={lon}, radius={radius}m...")
 
-        overpass_query = f"""[out:json][timeout:10];
+        overpass_query = f"""[out:json][timeout:15];
 (
   node["amenity"="hospital"](around:{radius},{lat},{lon});
   way["amenity"="hospital"](around:{radius},{lat},{lon});
@@ -50,7 +50,7 @@ out center;"""
                         endpoint,
                         params={"data": overpass_query},
                         headers=self.headers,
-                        timeout=8.0
+                        timeout=15.0
                     )
                     if response.status_code == 200:
                         data = response.json()
@@ -63,7 +63,7 @@ out center;"""
                             endpoint,
                             data={"data": overpass_query},
                             headers=self.headers,
-                            timeout=8.0
+                            timeout=15.0
                         )
                         if response_post.status_code == 200:
                             data = response_post.json()
