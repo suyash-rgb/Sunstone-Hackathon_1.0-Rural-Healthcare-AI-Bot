@@ -32,3 +32,9 @@ pnpm-debug.log*
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# Antigravity IDE Configurations
+AGENTS.md
+GEMINI.md
+.agents/
+

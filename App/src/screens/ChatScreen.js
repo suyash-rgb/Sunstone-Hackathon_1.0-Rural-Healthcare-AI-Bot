@@ -356,7 +356,7 @@ export default function ChatScreen({ chat, goBack, openProfile, onUpdateMessages
                 style={[
                   styles.msgRow,
                   isMe ? styles.msgRowRight : styles.msgRowLeft,
-                  msg.carouselItems ? { flexDirection: 'column', alignItems: 'flex-start' } : null
+                  (msg.carouselItems || msg.hospitalCarouselItems) ? { flexDirection: 'column', alignItems: 'flex-start' } : null
                 ]}
               >
                 <View style={[styles.bubble, isMe ? styles.bubbleMe : styles.bubbleOther]}>
@@ -464,7 +464,25 @@ export default function ChatScreen({ chat, goBack, openProfile, onUpdateMessages
                                   setMessages(prev => [...prev, locMsg]);
 
                                   if (chat.isOfficial) {
-                                    setTimeout(() => {
+                                    try {
+                                      // Use the local IP of the machine running the FastAPI backend
+                                      const apiUrl = `http://10.228.232.83:8001/api/v1/healthcare-facilities/nearby?lat=${location.coords.latitude}&lon=${location.coords.longitude}&radius=5000`;
+                                      const response = await fetch(apiUrl);
+
+                                      if (!response.ok) {
+                                        throw new Error("Failed to fetch nearby facilities");
+                                      }
+
+                                      const data = await response.json();
+                                      
+                                      console.log("=== API Response (Healthcare Facilities) ===");
+                                      console.log(JSON.stringify(data, null, 2));
+                                      
+                                      // Fallback to mockHospitals if the API returns an empty list
+                                      const hospitals = data.facilities && data.facilities.length > 0
+                                        ? data.facilities
+                                        : mockHospitals;
+
                                       setIsTyping(false);
                                       const botReply = translations[currentLanguage].locReply;
                                       const botMsg = {
@@ -472,10 +490,22 @@ export default function ChatScreen({ chat, goBack, openProfile, onUpdateMessages
                                         text: botReply,
                                         sender: 'other',
                                         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                                        hospitalCarouselItems: hospitals
+                                      };
+                                      setMessages(prev => [...prev, botMsg]);
+                                    } catch (error) {
+                                      console.error("API error:", error);
+                                      // Fallback to mock data on error (e.g. backend not running or reachable)
+                                      setIsTyping(false);
+                                      const botMsg = {
+                                        id: (Date.now() + 2).toString(),
+                                        text: translations[currentLanguage].locReply,
+                                        sender: 'other',
+                                        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
                                         hospitalCarouselItems: mockHospitals
                                       };
                                       setMessages(prev => [...prev, botMsg]);
-                                    }, 1500);
+                                    }
                                   } else {
                                     setIsTyping(false);
                                   }
@@ -533,8 +563,8 @@ export default function ChatScreen({ chat, goBack, openProfile, onUpdateMessages
                     showsHorizontalScrollIndicator={false}
                     style={styles.carouselContainer}
                   >
-                    {msg.hospitalCarouselItems.map((hosp) => (
-                      <HospitalCard key={hosp.id} hospital={hosp} />
+                    {msg.hospitalCarouselItems.map((hosp, index) => (
+                      <HospitalCard key={hosp.id || `hosp-${index}`} hospital={hosp} />
                     ))}
                   </ScrollView>
                 )}
