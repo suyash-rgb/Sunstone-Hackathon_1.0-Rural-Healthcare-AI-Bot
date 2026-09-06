@@ -352,7 +352,7 @@ eact-native-webview with hardware camera and microphone permissions enabled.
 
 ### 3-Tier Teleconsultation Action Sheet (React Native Implementation)
 
-`	sx
+````	sx
 // components/TeleconsultActionSheet.tsx
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Linking, Alert } from 'react-native';
@@ -494,4 +494,4 @@ const styles = StyleSheet.create({
     lineHeight: 16,
   },
 });
-`
+````
