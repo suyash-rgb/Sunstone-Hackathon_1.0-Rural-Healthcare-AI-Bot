@@ -1,13 +1,0 @@
-refactor: Healthcare Facility Filtering, Deduplication, Classification & Centralized Logging
-
-Motivation:
-Spatial searches from OpenStreetMap and Ola Maps were returning irrelevant specialized clinics (dental, dermatology, optical, diagnostic labs) and failing to deduplicate identical facilities mapped as distinct nodes or ways. Furthermore, facilities were being miscategorized due to inaccurate backend parsing, hindering rural users seeking primary government healthcare. Lastly, debugging was hindered by fragmented logs split across the frontend client and the backend server.
-
-Changes:
-- Implemented is_relevant_healthcare_facility in core utils to filter out non-general specialty clinics (dental, skin, optical, diagnostic labs, and veterinary centers) based on name and tag keywords.
-- Developed a comprehensive Deduplication Engine (deduplicate_facilities) utilizing Haversine spatial distance and normalized fuzzy name matching to reliably merge duplicate OSM/Ola Maps records while preserving the most informative metadata.
-- Refactored classify_facility to accurately identify specific public facility tiers (e.g., Govt. PHC, Govt. CHC, Civil Hospital) and generate appropriate UI badges.
-- Updated the MedicalFacility Pydantic schema to explicitly include adge and 	ier attributes.
-- Integrated the filtering and deduplication logic cleanly into both OlaMapsService and OSMService response processing pipelines.
-- Added acility_type and exclude_specialty query parameters to the /api/v1/healthcare-facilities/nearby endpoint to allow flexible client-side query filtering.
-- Created a new POST /api/v1/logs endpoint mapped to Python's standard logging module to centralize incoming frontend React Native logs directly into the active Uvicorn terminal instance.

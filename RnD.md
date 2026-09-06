@@ -297,3 +297,201 @@ out center;
 | `out center;` | **Output modifier** | Computes the center `lat`/`lon` for building shapes so your app doesn't have to parse raw polygon boundary nodes |
 
 
+
+---
+
+# Zero & Low-Cost Telemedicine Integration Options
+
+### Overview & Access Landscape
+
+To extend healthcare accessibility to rural and underserved populations without incurring massive infrastructure or legal overhead, AarogyaMitra leverages existing Digital Public Infrastructure (DPI) and open-source tele-triage frameworks. 
+
+While official Digital Public Infrastructure such as the **Ayushman Bharat Digital Mission (ABDM)** and **Unified Health Interface (UHI)** provide standard Beckn-protocol open network specifications for appointment discovery, live production access requires incorporated legal entities, NHA compliance reviews, and CERT-In security audits. For immediate deployment, hackathons, and MVPs, zero-cost and low-barrier pathways provide immediate, functional telemedicine capabilities.
+
+---
+
+### Comparison of Viable Telemedicine Integration Paths
+
+| Feature | Option A: Telephonic 104 Helpline | Option B: eSanjeevani Gateway | Option C: ABDM / UHI Open Network | Option D: In-App WebRTC Prototype |
+| --- | --- | --- | --- | --- |
+| **Type** | Telephonic Audio Call | Deep-Link / Web Portal Intent | Standardized Open Network Protocol | Native WebRTC Video/Audio Room |
+| **Setup Barrier** | **Zero** (OS Dialer 	el:104) | **Zero** (Deep Link / Web Fallback) | **High** (Sandbox for dev; Live requires NHA/KYC) | **Low** (FastAPI + Jitsi / Daily.co) |
+| **Connectivity** | Works on 2G / Basic Cellular | Requires 3G / 4G / Wi-Fi | Requires 3G / 4G / Wi-Fi | Requires 3G / 4G / Wi-Fi |
+| **Medical Roster** | State Govt Duty Medical Officers | MoHFW Govt Hospital Doctors | Registered Network HSP Doctors | Custom Roster / Duty Volunteers |
+| **Cost to Patient** | 100% Free | 100% Free | Free for Public Sector | Free (via open WebRTC) |
+| **Best For** | Emergency & Low-Bandwidth Triage | Non-critical Specialist Consults | Scalable Digital Health Architecture | Full Native In-App Experience |
+
+---
+
+### Implementation Details by Path
+
+#### 1. Telephonic Tele-Triage (Government 104 Helpline)
+For rural areas with degraded mobile data (2G/3G), video calls are infeasible. State governments in India operate the **24/7 104 Health Helpline** offering free medical advice, minor ailment triage, and prescription assistance.
+* **Mechanism:** Single-click OS dialer activation via React Native Linking.openURL('tel:104').
+* **Advantage:** Requires zero internet bandwidth and zero backend integration.
+
+#### 2. Official Government Telemedicine (eSanjeevani Integration)
+**eSanjeevani** (by MoHFW) is India's national telemedicine portal providing 100% free consultations with government doctors and Primary Health Centre (PHC) medical officers.
+* **Mechanism:** Deep-link launch via mobile intent (in.hsc.esanjeevaniopd.mobile) or responsive web portal fallback (https://esanjeevani.mohfw.gov.in/#/patient/signin).
+* **Advantage:** Direct access to qualified government doctors without maintaining medical liability, doctor rosters, or video infrastructure.
+
+#### 3. Standardized Digital Health Network (ABDM & UHI Architectural Model)
+The **Unified Health Interface (UHI)** built under ABDM (by NHA) utilizes the open Beckn Protocol (similar to ONDC/UPI for healthcare):
+* **Architecture:**
+  - **Health Service Providers (HSPs):** Publish doctor schedules and teleconsultation slots onto the network.
+  - **End User Applications (EUAs):** AarogyaMitra acts as an EUA querying /search, selecting via /select, verifying ABHA via /init, and confirming via /confirm.
+* **Deployment Model:** Use sandbox.abdm.gov.in for architecture validation during development.
+
+#### 4. Working Native In-App Prototype (FastAPI + WebRTC)
+For an immediate, fully integrated in-app video room experience:
+* **FastAPI Booking Endpoint (pp/api/v1/endpoints/teleconsult.py):** Generates unique WebRTC room links (e.g., Jitsi Meet https://meet.jit.si/aarogya-consult-<id>) and assigns duty medical officers.
+* **React Native View (TeleconsultRoom.tsx):** Renders the WebRTC room inside 
+eact-native-webview with hardware camera and microphone permissions enabled.
+
+---
+
+### 3-Tier Teleconsultation Action Sheet (React Native Implementation)
+
+`	sx
+// components/TeleconsultActionSheet.tsx
+import React from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Linking, Alert } from 'react-native';
+
+interface TeleconsultProps {
+  onClose?: () => void;
+}
+
+export const TeleconsultActionSheet: React.FC<TeleconsultProps> = ({ onClose }) => {
+  // Option A: Direct 104 Helpline Call
+  const handleDial104 = () => {
+    Linking.openURL('tel:104').catch(() => {
+      Alert.alert('Error', 'Unable to initiate call to 104.');
+    });
+  };
+
+  // Option B: Deep-Link to eSanjeevani Portal / App
+  const handleLaunchESanjeevani = async () => {
+    const webUrl = 'https://esanjeevani.mohfw.gov.in/#/patient/signin';
+    const playStoreUrl = 'market://details?id=in.hsc.esanjeevaniopd.mobile';
+
+    try {
+      const canOpenApp = await Linking.canOpenURL(playStoreUrl);
+      if (canOpenApp) {
+        await Linking.openURL(webUrl);
+      } else {
+        await Linking.openURL(webUrl);
+      }
+    } catch {
+      await Linking.openURL(webUrl);
+    }
+  };
+
+  // Option C: ABDM / ABHA Portal Info
+  const handleOpenABDM = () => {
+    Linking.openURL('https://abha.abdm.gov.in/abha/v3/');
+  };
+
+  return (
+    <View style={styles.sheetContainer}>
+      <Text style={styles.sheetTitle}>Consult a Healthcare Professional</Text>
+      <Text style={styles.sheetSubtitle}>
+        Select a free government service based on your urgency:
+      </Text>
+
+      {/* Option 1: 104 Triage */}
+      <TouchableOpacity style={[styles.optionCard, styles.emergencyCard]} onPress={handleDial104}>
+        <View style={styles.tag}>
+          <Text style={styles.tagText}>INSTANT • AUDIO</Text>
+        </View>
+        <Text style={styles.optionTitle}>Dial 104 Health Helpline</Text>
+        <Text style={styles.optionDesc}>
+          Free telephonic triage and advice by government medical officers. Ideal for poor network zones.
+        </Text>
+      </TouchableOpacity>
+
+      {/* Option 2: eSanjeevani OPD */}
+      <TouchableOpacity style={styles.optionCard} onPress={handleLaunchESanjeevani}>
+        <View style={[styles.tag, styles.govtTag]}>
+          <Text style={styles.tagText}>GOVT OPD • VIDEO</Text>
+        </View>
+        <Text style={styles.optionTitle}>eSanjeevani National OPD</Text>
+        <Text style={styles.optionDesc}>
+          Official MoHFW telemedicine service. Free video consultation and digital prescriptions.
+        </Text>
+      </TouchableOpacity>
+
+      {/* Option 3: ABDM Account */}
+      <TouchableOpacity style={styles.optionCard} onPress={handleOpenABDM}>
+        <View style={[styles.tag, styles.neutralTag]}>
+          <Text style={styles.tagText}>ABHA • ECOSYSTEM</Text>
+        </View>
+        <Text style={styles.optionTitle}>Ayushman Bharat Health Account (ABHA)</Text>
+        <Text style={styles.optionDesc}>
+          Manage your digital health records and access ABDM-compliant care networks.
+        </Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  sheetContainer: {
+    backgroundColor: '#FFFFFF',
+    padding: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+  },
+  sheetTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#111827',
+  },
+  sheetSubtitle: {
+    fontSize: 13,
+    color: '#6B7280',
+    marginVertical: 8,
+  },
+  optionCard: {
+    backgroundColor: '#F9FAFB',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    borderRadius: 12,
+    padding: 14,
+    marginVertical: 6,
+  },
+  emergencyCard: {
+    backgroundColor: '#FEF2F2',
+    borderColor: '#FCA5A5',
+  },
+  tag: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#EF4444',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    marginBottom: 6,
+  },
+  govtTag: {
+    backgroundColor: '#059669',
+  },
+  neutralTag: {
+    backgroundColor: '#3B82F6',
+  },
+  tagText: {
+    color: '#FFF',
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
+  optionTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#1F2937',
+  },
+  optionDesc: {
+    fontSize: 12,
+    color: '#4B5563',
+    marginTop: 4,
+    lineHeight: 16,
+  },
+});
+`
