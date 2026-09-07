@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="assets/logo-removebg-preview.png" alt="AarogyaMitra Logo" width="150"/>
+<img src="assets/aarogyamitra_logo.png" alt="AarogyaMitra Logo" width="150"/>
 
 # **आरोग्यमित्र** | AarogyaMitra | **Aarogya** मित्र
 ### *AI Rural Healthcare Chatbot • ग्रामीण स्वास्थ्य और चिकित्सा सहायक चैटबॉट*
