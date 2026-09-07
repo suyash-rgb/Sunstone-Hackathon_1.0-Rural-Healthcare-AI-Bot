@@ -11,7 +11,15 @@ export const translations = {
     "locAcquired": "📍 GPS Acquired: Lat {lat}, Lon {lon}",
     "locReply": "I have received your location. Finding nearest government hospitals and clinics...\n\n1. District Hospital (2.3 km)\n2. Primary Health Center (4.1 km)\n\nWould you like directions or to book a consultation?",
     "selectDoc": "Please select a doctor to book your free tele-consultation:",
-    "confirmAppt": "Appointment Confirmed"
+    "confirmAppt": "Appointment Confirmed",
+    "talkOptionsPrompt": "How would you like to connect with a healthcare provider?",
+    "bookOptionsPrompt": "Choose your preferred digital consultation booking method:",
+    "btnCall104": "📞 Call 104 Helpline (Instant Audio)",
+    "btnSanjeevani": "🌐 eSanjeevani Video OPD",
+    "btnAbhaBooking": "🆔 ABHA Digital Doctor Booking",
+    "btn104Callback": "📞 Schedule 104 Call-Back",
+    "esanjeevaniReply": "Connecting to eSanjeevani National Tele-OPD Portal...\n\nFree video consultation with MoHFW primary health centre doctors and government specialists (Available 8:00 AM - 8:00 PM).",
+    "call104Reply": "Dialing 104 Toll-Free National Health Helpline...\n\n24/7 free medical advice, doctor consultation, and emergency healthcare assistance."
   },
   "hi": {
     "welcome": "आरोग्य मित्र में आपका स्वागत है! आज मैं आपकी क्या सहायता कर सकता हूँ?",
@@ -25,7 +33,15 @@ export const translations = {
     "locAcquired": "📍 जीपीएस प्राप्त हुआ: अक्षांश {lat}, देशांतर {lon}",
     "locReply": "मुझे आपका स्थान मिल गया है। नजदीकी सरकारी अस्पतालों और क्लीनिकों की खोज की जा रही है...\n\n1. जिला अस्पताल (2.3 किमी)\n2. प्राथमिक स्वास्थ्य केंद्र (4.1 किमी)\n\nक्या आप दिशा-निर्देश चाहते हैं या परामर्श बुक करना चाहते हैं?",
     "selectDoc": "कृपया अपनी मुफ्त टेली-परामर्श बुक करने के लिए एक डॉक्टर चुनें:",
-    "confirmAppt": "नियुक्ति की पुष्टि की गई"
+    "confirmAppt": "नियुक्ति की पुष्टि की गई",
+    "talkOptionsPrompt": "आप डॉक्टर से कैसे संपर्क करना चाहते हैं?",
+    "bookOptionsPrompt": "अपनी पसंदीदा डिजिटल परामर्श बुकिंग विधि चुनें:",
+    "btnCall104": "📞 104 हेल्पलाइन पर कॉल करें (तुरंत)",
+    "btnSanjeevani": "🌐 ई-संजीवनी वीडियो ओपीडी",
+    "btnAbhaBooking": "🆔 आभा (ABHA) डिजिटल अपॉइंटमेंट",
+    "btn104Callback": "📞 104 कॉल-बैक अनुरोध करें",
+    "esanjeevaniReply": "ई-संजीवनी राष्ट्रीय टेली-ओपीडी पोर्टल से जुड़ रहे हैं...\n\nसरकारी डॉक्टरों के साथ मुफ्त वीडियो परामर्श (समय: सुबह 8:00 से शाम 8:00 बजे)।",
+    "call104Reply": "104 टोल-फ्री राष्ट्रीय स्वास्थ्य हेल्पलाइन डायल की जा रही है...\n\n24 घंटे मुफ्त मेडिकल सलाह और आपातकालीन सहायता।"
   },
   "bho": {
     "welcome": "आरोग्य मित्र में राउर स्वागत बा! आज हम राउर कइसे मदद कर सकत बानी?",
@@ -336,3 +352,14 @@ export const translations = {
     "confirmAppt": "اپوائنٹمنٹ کی تصدیق ہو گئی"
   }
 };
+
+export const getTranslation = (lang, key) => {
+  if (translations[lang] && translations[lang][key]) {
+    return translations[lang][key];
+  }
+  if (translations['hi'] && translations['hi'][key]) {
+    return translations['hi'][key];
+  }
+  return translations['en'][key] || key;
+};
+

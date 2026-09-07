@@ -9,7 +9,8 @@ import {
   Platform,
   Image,
   ActivityIndicator,
-  Modal
+  Modal,
+  Linking
 } from 'react-native';
 import {
   MoreVertical,
@@ -28,7 +29,7 @@ import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
 import * as Location from 'expo-location';
 import { getSimulatedResponse, mockDoctors, mockHospitals } from '../constants/mockData';
-import { translations } from '../constants/translations';
+import { translations, getTranslation } from '../constants/translations';
 import { useAudioPlayer } from 'expo-audio';
 import { HospitalCard } from '../components/HospitalCard';
 
@@ -211,14 +212,56 @@ export default function ChatScreen({ chat, goBack, openProfile, onUpdateMessages
       setIsTyping(false);
       let botReply = '';
       let carouselItems = null;
+      let buttons = null;
 
-      const isBook = Object.keys(translations).some(l => userText.toLowerCase().includes(translations[l].book.toLowerCase()) || userText.toLowerCase().includes('book a consultation'));
+      const userLower = userText.toLowerCase();
+
+      const isDoctor = Object.keys(translations).some(l => 
+        (translations[l].doctor && userLower.includes(translations[l].doctor.toLowerCase())) || 
+        userLower.includes('talk to a doctor')
+      );
+
+      const isBook = Object.keys(translations).some(l => 
+        (translations[l].book && userLower.includes(translations[l].book.toLowerCase())) || 
+        userLower.includes('book a consultation')
+      );
+
+      const is104Call = userLower.includes('104') || userLower.includes('helpline') || userLower.includes('call-back');
+      const isSanjeevani = userLower.includes('esanjeevani') || userLower.includes('संजीवनी');
+      const isAbhaDoc = userLower.includes('abha') || userLower.includes('आभा');
 
       if (chat.isMetaAI) {
         botReply = "That's interesting! I'm an AI, so I don't have personal experiences, but I can help you find more information about that.";
-      } else if (isBook) {
-        botReply = translations[currentLanguage].selectDoc;
+      } else if (is104Call) {
+        botReply = getTranslation(currentLanguage, 'call104Reply');
+        try {
+          Linking.openURL('tel:104');
+        } catch (e) {
+          console.error("Dialer error:", e);
+        }
+      } else if (isSanjeevani) {
+        botReply = getTranslation(currentLanguage, 'esanjeevaniReply');
+        try {
+          Linking.openURL('https://esanjeevaniopd.in');
+        } catch (e) {
+          console.error("Linking error:", e);
+        }
+      } else if (isAbhaDoc) {
+        botReply = getTranslation(currentLanguage, 'selectDoc');
         carouselItems = mockDoctors;
+      } else if (isDoctor) {
+        botReply = getTranslation(currentLanguage, 'talkOptionsPrompt');
+        buttons = [
+          getTranslation(currentLanguage, 'btnCall104'),
+          getTranslation(currentLanguage, 'btnSanjeevani')
+        ];
+      } else if (isBook) {
+        botReply = getTranslation(currentLanguage, 'bookOptionsPrompt');
+        buttons = [
+          getTranslation(currentLanguage, 'btnAbhaBooking'),
+          getTranslation(currentLanguage, 'btnSanjeevani'),
+          getTranslation(currentLanguage, 'btn104Callback')
+        ];
       } else {
         botReply = getSimulatedResponse(userText, chat.name);
       }
@@ -228,7 +271,8 @@ export default function ChatScreen({ chat, goBack, openProfile, onUpdateMessages
         text: botReply,
         sender: 'other',
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        carouselItems: carouselItems
+        carouselItems: carouselItems,
+        buttons: buttons
       };
       playSound();
       setMessages(prev => [...prev, botMsg]);
@@ -398,8 +442,12 @@ export default function ChatScreen({ chat, goBack, openProfile, onUpdateMessages
                         <Text style={styles.ticketValue}>{msg.ticketData.time}</Text>
                       </View>
                       <View style={styles.ticketRow}>
+                        <Text style={styles.ticketLabel}>ABHA Token:</Text>
+                        <Text style={[styles.ticketValue, { fontWeight: '600', color: '#128C7E' }]}>ABHA-9182-4412-0091</Text>
+                      </View>
+                      <View style={styles.ticketRow}>
                         <Text style={styles.ticketLabel}>Status:</Text>
-                        <Text style={[styles.ticketValue, { color: '#00A884' }]}>Confirmed</Text>
+                        <Text style={[styles.ticketValue, { color: '#00A884' }]}>Confirmed (Token Generated)</Text>
                       </View>
                     </View>
                   )}

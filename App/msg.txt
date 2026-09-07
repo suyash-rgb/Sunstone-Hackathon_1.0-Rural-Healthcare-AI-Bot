@@ -1,7 +1,34 @@
-fix: high-precision GPS values for latitude, longitude
+Telemedicine 3-Pathway Integration
 
-4 decimal places (0.0001°): Precision is ~11.1 meters (36 feet). This can mean the difference between pin-pointing a hospital building versus being on the wrong side of the road or adjacent plot.
-5 decimal places (0.00001°): Precision is ~1.11 meters (3.6 feet). Distinguishes individual building entrances.
-6 decimal places (0.000001°): Precision is ~0.11 meters / 11 centimeters (4.3 inches). This is standard for precise GPS navigation applications (Google Maps, Uber, Emergency Response).
+[ Welcome Message Options ]
+ ├── 📍 Locate a Healthcare Facility
+ ├── 🌐 Change Language
+ ├── 📅 Book a Consultation ──► Triggers sub-menu:
+ │                            ├── 1. 🆔 ABHA Digital Doctor Booking (In-App Ticket)
+ │                            ├── 2. 🌐 eSanjeevani Govt Tele-OPD (Portal Gateway)
+ │                            └── 3. 📞 Schedule 104 Doctor Call-back
+ │
+ ├── 👨‍⚕️ Talk to a Doctor ─────► Triggers sub-menu:
+ │                            ├── 1. 📞 Call 104 Health Helpline (Instant Dial: 104)
+ │                            └── 2. 🌐 Launch eSanjeevani Video Call
+ │
+ └── 🚨 EMERGENCY/HELP
 
-updated location.coords.latitude.toFixed(4) to location.coords.latitude.toFixed(6) (and similarly for longitude) in ChatScreen.js so that full high-precision GPS values are passed cleanly.
+
+
+1) 🆔 ABHA Digital Doctor Booking (In-App Ticket)
+• User says: "Book a doctor", "ABHA booking", "digital doctor"
+• AI shows: Dropdown menu with doctor specialties (Cardiologist, Neurologist, etc.) or latest token number.
+• Action: Generates a token, stores in DB, displays ticket with "Call Doctor" button.
+
+2) 🌐 eSanjeevani Govt Tele-OPD (Portal Gateway)
+• User says: "eSanjeevani", "tele-consultation", "online OPD"
+• AI shows: Link/Button to open https://esanjeevaniopd.in in browser.
+
+3) 📞 Schedule 104 Doctor Call-back
+• User says: "104 doctor", "call me back", "104 consultation"
+• AI shows: Ticket saying "104 Agent will call you at [User's Phone Number] within 24 hours."
+
+4) 📞 Call 104 Health Helpline (Instant Dial)
+• User says: "Call 104", "helpline", "emergency"
+• AI shows: "Dialing 104..." + Instant phone dialer prompt.
