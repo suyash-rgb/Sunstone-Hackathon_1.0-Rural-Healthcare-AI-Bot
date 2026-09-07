@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🏥 आरोग्यमित्र | AarogyaMitra | Aarogya Mitra
+# ➕ आरोग्यमित्र | AarogyaMitra | Aarogya Mitra
 ### *Gramin Swasthya Aur Chikitsa Sahayak • AI Rural Healthcare Companion*
 
 [![India DPI](https://img.shields.io/badge/%F0%9F%87%AE%F0%9F%87%B3_India-Healthcare_DPI-orange?style=for-the-badge)](https://abdm.gov.in/)
