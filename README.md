@@ -1,7 +1,9 @@
 <div align="center">
 
-# ➕ **आरोग्यमित्र** | AarogyaMitra | **Aarogya** मित्र
-### *AI Rural Healthcare Chatbot • ग्रामीण स्वास्थ्य और चिकित्सा सहायक चैटबॉट* 
+<img src="assets/logo-removebg-preview.png" alt="AarogyaMitra Logo" width="150"/>
+
+# **आरोग्यमित्र** | AarogyaMitra | **Aarogya** मित्र
+### *AI Rural Healthcare Chatbot • ग्रामीण स्वास्थ्य और चिकित्सा सहायक चैटबॉट*
 
 [![India DPI](https://img.shields.io/badge/%F0%9F%87%AE%F0%9F%87%B3_India-Healthcare_DPI-orange?style=for-the-badge)](https://abdm.gov.in/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-005587?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
