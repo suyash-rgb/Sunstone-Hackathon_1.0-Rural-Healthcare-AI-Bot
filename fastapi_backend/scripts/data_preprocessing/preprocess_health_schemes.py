@@ -155,6 +155,36 @@ def filter_health_schemes():
         print(f"Excluded schemes count: {excluded_count}")
         print(f"Final clean health schemes count (Section 2 Exclusion Filter): {len(final_df)}")
         
+        # =========================================================================
+        # SECTION 3: DATA PREPROCESSING (Null Handling & Formatting)
+        # =========================================================================
+        print("Preprocessing data (formatting and null handling)...")
+        
+        # 1. Ensure short_title columns are in UPPERCASE
+        if 'short_title' in final_df.columns:
+            final_df['short_title'] = final_df['short_title'].str.upper()
+            
+        # 3. slug column has all lowercases
+        if 'slug' in final_df.columns:
+            final_df['slug'] = final_df['slug'].str.lower()
+            
+        # 4. fill nulls for state with "Pan India" where level == "Central"
+        if 'state' in final_df.columns and 'level' in final_df.columns:
+            mask_central_null_state = (final_df['level'].str.strip().str.lower() == 'central') & (final_df['state'].isna())
+            final_df.loc[mask_central_null_state, 'state'] = 'Pan India'
+            
+        # 5. for nulls in references column, use "https://www.myscheme.gov.in/schemes/<slug>"
+        if 'references' in final_df.columns and 'slug' in final_df.columns:
+            mask_null_ref = final_df['references'].isna()
+            final_df.loc[mask_null_ref, 'references'] = "https://www.myscheme.gov.in/schemes/" + final_df.loc[mask_null_ref, 'slug']
+
+        # 2. All header row follows CamelCase (e.g. scheme_name -> SchemeName)
+        def to_camel_case(snake_str):
+            components = str(snake_str).split('_')
+            return ''.join(x.title() for x in components)
+            
+        final_df.columns = [to_camel_case(col) for col in final_df.columns]
+
         # Clean text columns to avoid openpyxl IllegalCharacterError
         print("Cleaning text for Excel export...")
         for col in final_df.select_dtypes(include=['object']).columns:
