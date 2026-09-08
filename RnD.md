@@ -514,29 +514,14 @@ Is there a single, open API for all government schemes and health facilities in 
 | **API Setu (`apisetu.gov.in`)** | Government Open API Gateway (OAuth 2.0 / REST Endpoints) | 🟢 **Live Production Gateway** (MeitY) | **High Value for User Verification & Document Retrieval** | Used for ABHA Health ID, PM-JAY card verification, DigiLocker document access, and state health authority integrations. |
 | **OpenStreetMap (OSM) via Overpass API** | Community GIS API (`overpass-api.de` query language) | 🟢 **Live Community Data** | **Secondary / Fallback for Geo-Coordinates** | Instant spatial query for CHCs and PHCs (`healthcare=community_health_centre` / `primary_health_centre`). |
 
-### Empirical Review: GitHub Repositories & Kaggle Datasets
+### Finalized Dataset for Government Health Schemes
 
-To verify external community precedents for Indian healthcare awareness and facility locator projects, we reviewed active open-source projects on GitHub and datasets hosted on Kaggle:
+After evaluating various open government data portals and repositories, we found that many sources contain outdated, broken, or disjointed schemas. 
 
-#### 1. GitHub Open-Source Projects Status
-* **`planemad/india_health_facilities`** (GitHub):
-  * **Status**: Live open-data GIS mapping repository.
-  * **Utility**: Specifically dedicated to mapping Indian public health infrastructure (CHCs, PHCs, Sub-Centres, District Hospitals). Uses LGD (Local Government Directory) state/district code mappings.
-* **`Varnasr/PolicyStack`** (GitHub):
-  * **Status**: Live research & scraper repository.
-  * **Utility**: Ingests metadata, budget allocations, and policy rules for 15 flagship Indian schemes including **Ayushman Bharat (PM-JAY)**, **POSHAN Abhiyaan**, and **National Health Mission (NHM)**.
-* **`ramSeraph/opendata`** (GitHub):
-  * **Status**: Active community toolset for parsing and downloading open data endpoints from Indian ministry portals.
+Instead, we have finalized a curated dataset derived from Kaggle (**`Ojaas Hampiholi/Indian Government Schemes Data - July2026`**), which contained an extensive scrape of `myScheme.gov.in`. 
+We systematically preprocessed and filtered this raw dataset down to **504 highly relevant Health, Wellness, Maternal Care, and Medical Insurance schemes** (removing non-health scholarships, agricultural loans, etc.). 
 
-#### 2. Kaggle Healthcare & Scheme Datasets (Empirically Verified)
-* **`spscientist/all-india-health-centres-directory`** (Kaggle Dataset):
-  * **Contents**: Comprehensive directory of public health centres across India (CHCs, PHCs, Sub-Centres, Hospitals) including latitude/longitude coordinates, state, district, and facility type.
-* **`themrityunjaypathak/my-scheme-india-govt-welfare-schemes`** (Kaggle Dataset):
-  * **Contents**: Clean collection of 4,670+ Central & State welfare schemes scraped from `myScheme.gov.in`, complete with eligibility rules, FAQs, and required documents.
-* **`spscientist/indian-medical-facility-dataset`** (Kaggle Dataset):
-  * **Contents**: State-wise medical facility listings with NIN/HFR facility codes and bed capacities.
-* **`praveengovi/hmis-india-2019-20-monthly`** (Kaggle Dataset):
-  * **Contents**: Health Management Information System (HMIS) monthly indicators for CHCs and PHCs across all districts.
+This clean baseline (`health_schemes.xlsx`) is actively maintained in our local data store and serves as the primary source of truth for the RAG + Guided UI backend.
 
 ---
 
@@ -544,54 +529,90 @@ To verify external community precedents for Indian healthcare awareness and faci
 
 To avoid hardcoding frontend JSON files, the schemes database and recommendation engine must live inside our **FastAPI Backend (`ArogyaMitra`)** connected to a PostgreSQL database.
 
+```text
+┌─────────────────────────────────────────────────────────────────┐
+│                    Frontend: React Native App                   │
+├────────────────────────────────┬────────────────────────────────┤
+│       Flow A: Guided UI        │     Flow B: RAG Chatbot        │
+│ "Know Govt Schemes" Button ->  │ "I am a pregnant woman from    │
+│ sends (domicile_state, filters)│ UP, what schemes apply to me?" │
+└───────────────┬────────────────┴────────────────┬───────────────┘
+                │                                 │
+                ▼                                 ▼
+        GET /api/v1/schemes/filter        POST /api/v1/schemes/chat
+┌───────────────┴─────────────────────────────────┴───────────────┐
+│                     FastAPI Backend Router                      │
+└───────────────┬─────────────────────────────────┬───────────────┘
+                │                                 │
+        ┌───────┴────────┐                ┌───────┴────────┐
+        ▼                ▼                ▼                ▼
+┌───────────────┐ ┌───────────────┐ ┌───────────────┐ ┌───────────────┐
+│  PostgreSQL   │ │ AI RAG Engine │ │   PostgreSQL  │ │  Vector DB    │
+│  Data Store   │ │ (Gemini/GPT)  │ │   Data Store  │ │ (Pinecone/    │
+│ (Exact Match) │ │ (Semantic)    │ │   (Details)   │ │  pgvector)    │
+└───────┬───────┘ └───────┬───────┘ └───────┬───────┘ └───────┬───────┘
+        │                 │                 │                 │
+        └─────────────────┴────────┬────────┴─────────────────┘
+                                   │
+                                   ▼
+                       ┌─────────────────────────┐
+                       │  Multilingual Pipeline  │
+                       │ (Bhashini / Indic NLP)  │
+                       │ Translates results into │
+                       │    22 Indic Languages   │
+                       └───────────┬─────────────┘
+                                   │
+                                   ▼
+                       ┌─────────────────────────┐
+                       │   Response to App       │
+                       │ (Localized JSON Data)   │
+                       └─────────────────────────┘
 ```
-┌─────────────────────────────────────────────────────────┐
-│              Frontend: React Native App                 │
-│  Taps "Know Govt Schemes" -> sends (lat, lon, lang, etc.)│
-└────────────────────────────┬────────────────────────────┘
-                             │
-                             ▼ GET /api/v1/schemes/recommend?state=MP&lang=hi
-┌─────────────────────────────────────────────────────────┐
-│                FastAPI Backend Router                   │
-└────────────────────────────┬────────────────────────────┘
-                             │
-        ┌────────────────────┴────────────────────┐
-        ▼                                         ▼
-┌───────────────────────────────┐   ┌───────────────────────────────┐
-│ PostgreSQL Scheme Data Store  │   │  Multilingual Summarizer      │
-│  - Central Schemes (PM-JAY)   │   │  (Bhashini / AI Translation)  │
-│  - State Schemes (28 States)  │   │  Translates scheme benefits   │
-│  - Hospital Empanlement maps  │   │  into 22 Indic Languages.     │
-└───────────────────────────────┘   └───────────────────────────────┘
-```
 
-### Why this backend approach wins:
-1. **Dynamic & State-Aware:** The backend detects the user's state from their location (e.g., Madhya Pradesh, Maharashtra, Bihar) and automatically returns **Central Schemes** (applicable everywhere) + **State-Specific Schemes** (e.g., *Mukhya Mantri Jan Arogya Yojana*, *Mukhyamantri Amrutam*, *Dr. YSR Aarogyasri*).
-2. **Zero App Updates Required:** When a state government updates a subsidy limit (e.g., increasing coverage from ₹5 Lakh to ₹10 Lakh), you update the database once, and all mobile app users see the updated information instantly.
-3. **Multilingual via Bhashini / AI Pipeline:** Government scheme PDFs are usually in formal English/Hindi. The backend can store or dynamically generate simple, 3-bullet summaries in regional languages (Bhojpuri, Marathi, Tamil, Bengali, etc.).
+### Why this dual-flow backend approach wins:
+1. **Hybrid Discovery (Guided + RAG):** Users who prefer structured menus can use the **Guided UI** (filtering by state and category), while users with complex, specific needs can use the **RAG Chatbot** to ask semantic questions. Both flows retrieve accurate data from our centralized schemes database.
+2. **Dynamic & State-Aware:** For both flows, the backend prompts the user for their domicile/home state (e.g., Madhya Pradesh, Maharashtra, Bihar) rather than relying on current GPS location. This ensures accurate eligibility matching for both **Central Schemes** (applicable everywhere) and **State-Specific Schemes**.
+3. **Unified Multilingual Translation Pipeline:** Regardless of whether the scheme data was retrieved via strict DB filters or semantic RAG search, the final response payload is dynamically passed through a translation layer (Bhashini / AI Pipeline) before being sent to the app. This guarantees that all summaries and requirements are presented in the user's preferred regional language (Bhojpuri, Marathi, Tamil, Bengali, etc.).
 
+## Interactive Dual-Flow Experience
 
-## Interactive Citizen Triage Flow (Chatbot Experience)
+Aarogya Mitra supports two parallel ways for citizens to discover schemes, ensuring accessibility for all technical literacy levels:
 
-Instead of forcing users to scroll through huge lists of policies, Aarogya Mitra can offer an **Interactive Scheme Discovery Assistant**:
-
-```
+### Flow A: Guided UI (Triage Assistant)
+```text
 User: Taps "Know Health Related Govt. Schemes"
   │
-  ├──► Bot: "Select category: 
+  ├──► App: Prompts for Domicile State (e.g., Madhya Pradesh) & Category:
   │          1. 🏥 Cashless Hospitalization (Up to ₹5-10 Lakhs)
   │          2. 🤰 Maternal & Child Care Benefits
   │          3. 💊 Free Medicines & Dialysis
-  │          4. 🩺 Special Disease Assistance (TB, Cancer)"
+  │          4. 🦠 Special Disease Assistance (TB, Cancer)
   │
   ├──► User: Selects "Cashless Hospitalization"
   │
-  └──► Bot: Detects Location (e.g., Madhya Pradesh) & asks 2 quick questions:
-             - "Do you have a BPL / Ayushman / Ration Card?"
+  └──► Bot: "Do you have a BPL / Ayushman / Ration Card?"
              - "Result: You qualify for 2 major schemes in your region:
                 1. PM-JAY (Central) - Free hospitalization up to ₹5 Lakhs.
                 2. MP Mukhyamantri Jan Arogya (State) - Additional state coverage.
-                [📄 View Required Documents]  [📍 Find Empaneled Hospitals Nearby]"
+                [📄 View Required Documents]  [🏥 Find Empaneled Hospitals Nearby]"
+```
+
+### Flow B: Personalized RAG Chatbot
+```text
+User: Taps the floating Voice/Chat Assistant
+  │
+  ├──► User (Audio/Text): "I am a 25-year-old pregnant woman from Uttar Pradesh, 
+  │                        what maternal health schemes apply to me?"
+  │
+  ├──► Backend (RAG): 
+  │      1. Extracts intent (Maternal Health) & entity (Uttar Pradesh, Pregnant).
+  │      2. Queries VectorDB + PostgreSQL for exact scheme rules.
+  │      3. Translates output into the user's selected app language.
+  │
+  └──► Bot: "Congratulations on your pregnancy! In Uttar Pradesh, you are eligible for:
+             1. Pradhan Mantri Matru Vandana Yojana (Central) - ₹5,000 nutritional support.
+             2. Janani Suraksha Yojana (State) - Cash assistance for institutional delivery.
+             Would you like to know the required documents for these?"
 ```
 
 ---
