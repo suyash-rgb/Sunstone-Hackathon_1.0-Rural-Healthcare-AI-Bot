@@ -87,3 +87,5 @@ desktop.ini
 *.swn
 *.pid
 *.pid.lock
+# Datasets
+datasets/
