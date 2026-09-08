@@ -89,3 +89,6 @@ desktop.ini
 *.pid.lock
 # Datasets
 datasets/
+
+# SeleniumBase downloaded files
+downloaded_files/
