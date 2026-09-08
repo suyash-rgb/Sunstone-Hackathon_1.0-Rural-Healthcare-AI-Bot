@@ -1,0 +1,7 @@
+Data cleaning for health schemes dataset
+
+Initial Input/Output file used: health_schemes_565.xlsx (565 rows).
+Filtered out: 61 unrelated/mistagged schemes.
+Final clean health schemes count: 504 schemes.
+File renamed upon completion to: "health_schemes.xlsx"
+Moved the scripts to a standard scripts/data_preprocessing directory
