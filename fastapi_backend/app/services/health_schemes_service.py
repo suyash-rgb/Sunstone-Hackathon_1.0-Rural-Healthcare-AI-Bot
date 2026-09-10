@@ -137,6 +137,8 @@ class HealthSchemesService:
 
         if state:
             emb_query = emb_query.filter(or_(HealthScheme.state.ilike(f"%{state}%"), HealthScheme.state == "Pan India"))
+        else:
+            emb_query = emb_query.filter(HealthScheme.level == 'Central')
 
         res = await db.execute(emb_query)
         rows = res.all()
