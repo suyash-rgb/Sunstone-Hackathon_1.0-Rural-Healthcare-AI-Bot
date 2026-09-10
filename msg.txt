@@ -1,0 +1,13 @@
+feat: Rural health scheme discovery & RAG
+
+Introduce the rural health schemes recommendation engine and RAG search capability to enable accurate scheme discovery for users.
+
+Key Features & Capabilities:
+- Health Schemes Discovery API: Implemented /rag/search endpoint allowing users to search and discover health schemes using natural language queries.
+- Normalized Database Schema: Designed and implemented a 5-table PostgreSQL schema (health_schemes, faqs, references, documents, embeddings) for scheme metadata and vector storage.
+- FastEmbed Vector Processing: Integrated FastEmbed for efficient local embedding generation across scheme FAQs and summary metadata.
+- Automated Data Ingestion: Created seeding script to process scheme datasets, generate vector embeddings, and populate PostgreSQL.
+- Service Layer Architecture: Modularized backend logic into a clean health_schemes_service layer.
+- Design Documentation: Added DB_Design.md containing complete ER model and data dictionary.
+
+Ref #2

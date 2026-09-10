@@ -1,19 +1,16 @@
 import os
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 
-# --- Configuration for Local MySQL ---
-# The driver is now 'mysql+asyncmy' (Make sure you installed 'asyncmy')
-# Format: mysql+asyncmy://<user>:<password>@<host>:<port>/<dbname>
-# Default port is 3306.
+# Format: postgresql+asyncpg://<user>:<password>@<host>:<port>/<dbname>
 DATABASE_URL = os.environ.get(
     "DATABASE_URL", 
-    "mysql+asyncmy://root:root@localhost:3306/rural_healthcare_ai_bot_db" 
+    "postgresql+asyncpg://postgres:root@localhost:5432/arogyamitra_db" 
 )
 
 # Create the asynchronous database engine
 engine = create_async_engine(
     DATABASE_URL,
-    echo=True,  # Keep true for initial debugging, set to False later
+    echo=False,
     future=True 
 )
 

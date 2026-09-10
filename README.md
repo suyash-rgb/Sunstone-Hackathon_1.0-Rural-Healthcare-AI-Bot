@@ -2,7 +2,7 @@
 
 <img src="assets/logo-removebg-preview.png" alt="AarogyaMitra Logo" width="150"/>
 
-# **आरोग्यमित्र** | AarogyaMitra | **Aarogya** मित्र
+# **आरोग्यमित्र** | AarogyaMitra 
 ### *AI Rural Healthcare Chatbot • ग्रामीण स्वास्थ्य और चिकित्सा सहायक चैटबॉट*
 
 [![India DPI](https://img.shields.io/badge/%F0%9F%87%AE%F0%9F%87%B3_India-Healthcare_DPI-orange?style=for-the-badge)](https://abdm.gov.in/)
