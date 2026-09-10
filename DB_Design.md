@@ -6,7 +6,7 @@ This document defines the 5-table relational and hybrid-search database design f
 
 ## 1. System Architecture Diagram
 
-`mermaid
+```mermaid
 graph TD
     A[Excel Dataset: health_schemes.xlsx] -->|Seed & Embedding Script| B[(PostgreSQL Database)]
     subgraph PostgreSQL 5-Table Hybrid Schema
@@ -22,7 +22,7 @@ graph TD
     B5 -->|pgvector HNSW Search| Engine
     Engine -->|Rank Fusion Top Chunks| Groq[Groq LLM API]
     Groq -->|Final Response| C2[RAG Chatbot API]
-`
+```
 
 ---
 
@@ -101,7 +101,7 @@ Stores text passages alongside Full-Text Search tokens and pgvector dense vector
 | chunk_type | VARCHAR(50) | No | B-Tree Index | Chunk type ('metadata', 'faq', 'eligibility', 'benefits') |
 | chunk_text | TEXT | No | None | Raw text passage used as LLM context |
 | ts_tokens | TSVECTOR | No | GIN Index | PostgreSQL Full-Text Search Tokens |
-| embedding | VECTOR(384) | No | HNSW Index | 384-dim Dense Vector (ll-MiniLM-L6-v2) |
+| embedding | VECTOR(384) | No | HNSW Index | 384-dim Dense Vector |
 | created_at | TIMESTAMP | No | None | Embedding indexing timestamp |
 
 ---
