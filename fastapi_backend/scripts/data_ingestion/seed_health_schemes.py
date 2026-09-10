@@ -5,6 +5,7 @@ from pathlib import Path
 backend_dir = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(backend_dir))
 
+import time
 import re
 import ast
 import asyncio
@@ -55,6 +56,7 @@ def parse_documents(raw):
     return [i.strip() for i in items if i.strip()]
 
 async def seed_database():
+    start_time = time.time()
     print("--- 1. Initializing PostgreSQL Database Schema ---", flush=True)
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
@@ -66,122 +68,132 @@ async def seed_database():
     print("\n--- 3. Initializing FastEmbed Model ---", flush=True)
     embed_model = TextEmbedding()
 
-    print("\n--- 4. Seeding Data into PostgreSQL ---", flush=True)
+    print("\n--- 4. Preparing Objects and Text Chunks ---", flush=True)
+    schemes_to_insert = []
+    faqs_to_insert = []
+    refs_to_insert = []
+    docs_to_insert = []
+    embedding_payloads = []
+
+    for idx, row in df.iterrows():
+        scheme_name = clean_val(row.get('SchemeName'))
+        if not scheme_name:
+            continue
+
+        slug_val = clean_val(row.get('Slug')) or f"scheme-{idx+1}"
+        
+        scheme = HealthScheme(
+            scheme_id=clean_val(row.get('SchemeId')),
+            slug=slug_val,
+            scheme_name=scheme_name,
+            short_title=clean_val(row.get('ShortTitle')),
+            state=clean_val(row.get('State')) or "Pan India",
+            department=clean_val(row.get('Department')),
+            level=clean_val(row.get('Level')) or "Central",
+            categories=clean_val(row.get('Categories')),
+            subcategories=clean_val(row.get('Subcategories')),
+            tags=clean_val(row.get('Tags')),
+            beneficiaries=clean_val(row.get('Beneficiaries')),
+            brief_description=clean_val(row.get('BriefDescription')),
+            description=clean_val(row.get('Description')),
+            benefits=clean_val(row.get('Benefits')),
+            eligibility=clean_val(row.get('Eligibility')),
+            application_process=clean_val(row.get('ApplicationProcess'))
+        )
+        schemes_to_insert.append(scheme)
+
+        # FAQs
+        raw_faqs = parse_faqs(clean_val(row.get('Faqs')))
+        for q_idx, (q, a) in enumerate(raw_faqs, start=1):
+            faqs_to_insert.append((slug_val, q_idx, q, a))
+            faq_chunk_text = f"Scheme: {scheme_name} | State: {scheme.state}\nQuestion: {q}\nAnswer: {a}"
+            embedding_payloads.append(("faq", faq_chunk_text, slug_val))
+
+        # References
+        raw_refs = parse_references(clean_val(row.get('References')))
+        for r_title, r_url in raw_refs:
+            refs_to_insert.append((slug_val, r_title, r_url))
+
+        # Documents
+        raw_docs = parse_documents(clean_val(row.get('Documents')))
+        for doc_name in raw_docs:
+            docs_to_insert.append((slug_val, doc_name))
+
+        # Summary Chunk
+        summary_parts = [f"Scheme: {scheme_name} ({scheme.state})"]
+        if scheme.brief_description:
+            summary_parts.append(f"Description: {scheme.brief_description}")
+        if scheme.benefits:
+            summary_parts.append(f"Benefits: {scheme.benefits[:300]}")
+        if scheme.eligibility:
+            summary_parts.append(f"Eligibility: {scheme.eligibility[:300]}")
+        
+        summary_text = "\n".join(summary_parts)
+        embedding_payloads.append(("metadata", summary_text, slug_val))
+
+    print(f"Parsed {len(schemes_to_insert)} schemes, {len(faqs_to_insert)} FAQs, {len(embedding_payloads)} total embedding chunks.", flush=True)
+
+    print("\n--- 5. Batch Embeddings Generation (batch_size=32) ---", flush=True)
+    t_emb_start = time.time()
+    texts_only = [p[1] for p in embedding_payloads]
+    # batch_size=32 prevents ONNX memory bad allocation error
+    vectors_list = list(embed_model.embed(texts_only, batch_size=32))
+    print(f"Generated {len(vectors_list)} vector embeddings in {time.time() - t_emb_start:.2f} seconds!", flush=True)
+
+    print("\n--- 6. Ingesting into PostgreSQL ---", flush=True)
     async with AsyncSessionLocal() as session:
         await session.execute(text("TRUNCATE TABLE health_schemes RESTART IDENTITY CASCADE;"))
         await session.commit()
-        print("Truncated health_schemes table for fresh seed.", flush=True)
 
-        total_schemes = 0
-        total_faqs = 0
-        total_refs = 0
-        total_docs = 0
-        total_embeddings = 0
+        # Insert Schemes
+        session.add_all(schemes_to_insert)
+        await session.flush()
 
-        for idx, row in df.iterrows():
-            scheme_name = clean_val(row.get('SchemeName'))
-            if not scheme_name:
-                continue
+        slug_to_id = {s.slug: s.id for s in schemes_to_insert}
 
-            slug_val = clean_val(row.get('Slug')) or f"scheme-{idx+1}"
-            
-            scheme = HealthScheme(
-                scheme_id=clean_val(row.get('SchemeId')),
-                slug=slug_val,
-                scheme_name=scheme_name,
-                short_title=clean_val(row.get('ShortTitle')),
-                state=clean_val(row.get('State')) or "Pan India",
-                department=clean_val(row.get('Department')),
-                level=clean_val(row.get('Level')) or "Central",
-                categories=clean_val(row.get('Categories')),
-                subcategories=clean_val(row.get('Subcategories')),
-                tags=clean_val(row.get('Tags')),
-                beneficiaries=clean_val(row.get('Beneficiaries')),
-                brief_description=clean_val(row.get('BriefDescription')),
-                description=clean_val(row.get('Description')),
-                benefits=clean_val(row.get('Benefits')),
-                eligibility=clean_val(row.get('Eligibility')),
-                application_process=clean_val(row.get('ApplicationProcess'))
+        # Insert FAQs
+        faq_objs = [
+            HealthSchemeFAQ(scheme_id=slug_to_id[slug], question_number=q_idx, question=q, answer=a)
+            for slug, q_idx, q, a in faqs_to_insert
+        ]
+        session.add_all(faq_objs)
+
+        # Insert References
+        ref_objs = [
+            HealthSchemeReference(scheme_id=slug_to_id[slug], title=title, url=url)
+            for slug, title, url in refs_to_insert
+        ]
+        session.add_all(ref_objs)
+
+        # Insert Documents
+        doc_objs = [
+            HealthSchemeDocument(scheme_id=slug_to_id[slug], document_name=doc_name)
+            for slug, doc_name in docs_to_insert
+        ]
+        session.add_all(doc_objs)
+
+        # Insert Embeddings
+        emb_objs = [
+            HealthSchemeEmbedding(
+                scheme_id=slug_to_id[payload[2]],
+                chunk_type=payload[0],
+                chunk_text=payload[1],
+                embedding=vec.tolist()
             )
-            session.add(scheme)
-            await session.flush()
-            total_schemes += 1
+            for payload, vec in zip(embedding_payloads, vectors_list)
+        ]
+        session.add_all(emb_objs)
 
-            # 1. FAQs
-            raw_faqs = parse_faqs(clean_val(row.get('Faqs')))
-            for q_idx, (q, a) in enumerate(raw_faqs, start=1):
-                faq_obj = HealthSchemeFAQ(
-                    scheme_id=scheme.id,
-                    question_number=q_idx,
-                    question=q,
-                    answer=a
-                )
-                session.add(faq_obj)
-                total_faqs += 1
-
-                faq_chunk_text = f"Scheme: {scheme.scheme_name} | State: {scheme.state}\nQuestion: {q}\nAnswer: {a}"
-                faq_vec = list(embed_model.embed([faq_chunk_text]))[0].tolist()
-                emb_obj = HealthSchemeEmbedding(
-                    scheme_id=scheme.id,
-                    chunk_type="faq",
-                    chunk_text=faq_chunk_text,
-                    embedding=faq_vec
-                )
-                session.add(emb_obj)
-                total_embeddings += 1
-
-            # 2. References
-            raw_refs = parse_references(clean_val(row.get('References')))
-            for r_title, r_url in raw_refs:
-                ref_obj = HealthSchemeReference(
-                    scheme_id=scheme.id,
-                    title=r_title,
-                    url=r_url
-                )
-                session.add(ref_obj)
-                total_refs += 1
-
-            # 3. Documents
-            raw_docs = parse_documents(clean_val(row.get('Documents')))
-            for doc_name in raw_docs:
-                doc_obj = HealthSchemeDocument(
-                    scheme_id=scheme.id,
-                    document_name=doc_name
-                )
-                session.add(doc_obj)
-                total_docs += 1
-
-            # 4. Summary Chunk
-            summary_parts = [f"Scheme: {scheme.scheme_name} ({scheme.state})"]
-            if scheme.brief_description:
-                summary_parts.append(f"Description: {scheme.brief_description}")
-            if scheme.benefits:
-                summary_parts.append(f"Benefits: {scheme.benefits[:300]}")
-            if scheme.eligibility:
-                summary_parts.append(f"Eligibility: {scheme.eligibility[:300]}")
-            
-            summary_text = "\n".join(summary_parts)
-            summary_vec = list(embed_model.embed([summary_text]))[0].tolist()
-            summary_emb = HealthSchemeEmbedding(
-                scheme_id=scheme.id,
-                chunk_type="metadata",
-                chunk_text=summary_text,
-                embedding=summary_vec
-            )
-            session.add(summary_emb)
-            total_embeddings += 1
-
-            if total_schemes % 25 == 0:
-                await session.commit()
-                print(f"Seeded & committed {total_schemes}/{len(df)} schemes...", flush=True)
-
+        # Commit everything in ONE atomic transaction at the very end
         await session.commit()
-        print(f"\n=== SEEDING COMPLETE ===")
-        print(f"Total Schemes Inserted: {total_schemes}")
-        print(f"Total FAQs Inserted: {total_faqs}")
-        print(f"Total References Inserted: {total_refs}")
-        print(f"Total Documents Inserted: {total_docs}")
-        print(f"Total Vector Embeddings Generated: {total_embeddings}", flush=True)
+
+    total_duration = time.time() - start_time
+    print(f"\n=== SEEDING COMPLETE IN {total_duration:.2f} SECONDS ===")
+    print(f"Total Schemes Inserted: {len(schemes_to_insert)}")
+    print(f"Total FAQs Inserted: {len(faq_objs)}")
+    print(f"Total References Inserted: {len(ref_objs)}")
+    print(f"Total Documents Inserted: {len(doc_objs)}")
+    print(f"Total Embeddings Inserted: {len(emb_objs)}", flush=True)
 
 if __name__ == "__main__":
     asyncio.run(seed_database())

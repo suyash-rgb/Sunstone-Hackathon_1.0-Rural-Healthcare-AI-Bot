@@ -150,7 +150,17 @@ class HealthSchemesService:
                 scored_chunks.append((score, emb_obj, scheme_name, scheme_state))
 
         scored_chunks.sort(key=lambda x: x[0], reverse=True)
-        top_items = scored_chunks[:top_k]
+        
+        # Diversity filter: maximum 1 chunk per scheme to ensure we retrieve top_k distinct schemes
+        top_items = []
+        seen_schemes = set()
+        for item in scored_chunks:
+            emb_obj = item[1]
+            if emb_obj.scheme_id not in seen_schemes:
+                top_items.append(item)
+                seen_schemes.add(emb_obj.scheme_id)
+            if len(top_items) >= top_k:
+                break
 
         retrieved_chunks = []
         context_passages = []
