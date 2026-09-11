@@ -1,13 +1,8 @@
-feat: Rural health scheme discovery & RAG
+﻿refactor(rag): optimize hybrid search & llm prompt
 
-Introduce the rural health schemes recommendation engine and RAG search capability to enable accurate scheme discovery for users.
-
-Key Features & Capabilities:
-- Health Schemes Discovery API: Implemented /rag/search endpoint allowing users to search and discover health schemes using natural language queries.
-- Normalized Database Schema: Designed and implemented a 5-table PostgreSQL schema (health_schemes, faqs, references, documents, embeddings) for scheme metadata and vector storage.
-- FastEmbed Vector Processing: Integrated FastEmbed for efficient local embedding generation across scheme FAQs and summary metadata.
-- Automated Data Ingestion: Created seeding script to process scheme datasets, generate vector embeddings, and populate PostgreSQL.
-- Service Layer Architecture: Modularized backend logic into a clean health_schemes_service layer.
-- Design Documentation: Added DB_Design.md containing complete ER model and data dictionary.
-
-Ref #2
+- Implement Reciprocal Rank Fusion (RRF) for vector and lexical search
+- Add diversity filtering to return distinct scheme chunks
+- Prioritize metadata chunks over FAQs for cleaner LLM context
+- Refactor LLM prompt into a concise citation-router mode
+- Fix healthcare schemes module naming and router imports
+- Improve token efficiency and response latency
