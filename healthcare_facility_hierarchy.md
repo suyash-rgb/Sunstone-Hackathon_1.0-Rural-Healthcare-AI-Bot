@@ -6,7 +6,7 @@ Understanding this hierarchy is critical for filtering nearby facilities and rou
 
 ## Hierarchy Tree Diagram
 
-`mermaid
+```mermaid
 graph TD
     T3["[Tier 3] Tertiary Care (Apex Hospitals & Medical Colleges)"]
     T2["[Tier 2] Secondary Care (District & Sub-District Hospitals, CHCs)"]
@@ -49,7 +49,7 @@ graph TD
     T1 -.-> T1_3
     T1 -.-> T1_4
     T1 -.-> T1_5
-`
+```
 
 ---
 
