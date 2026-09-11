@@ -39,11 +39,16 @@ class Appointment(Base):
     def __repr__(self) -> str:
         return f"Appointment(id={self.id!r}, user_id={self.user_id!r}, status={self.status!r})"
 
-# Deferred import of health scheme models to avoid circular import during model loading
+# Deferred import of models to avoid circular import during model loading
 try:
     from app.db.models.health_scheme import (
         HealthScheme, HealthSchemeFAQ, HealthSchemeReference,
         HealthSchemeDocument, HealthSchemeEmbedding
     )
+except ImportError:
+    pass
+
+try:
+    from app.db.models.healthcare_facility import HealthcareFacility
 except ImportError:
     pass

@@ -12,6 +12,7 @@ from app.db.session import engine, get_session
 from app.api.v1.endpoints.vision import router as vision_router
 from app.api.v1.endpoints.translation import router as translation_router
 from app.api.v1.endpoints.healthcare_facilities import router as healthcare_facilities_router
+from app.api.v1.endpoints.govt_healthcare_facility import router as govt_healthcare_facility_router
 from app.api.v1.endpoints.logs import router as logs_router 
 from app.api.v1.endpoints.healthcare_schemes import router as healthcare_schemes_router
 
@@ -27,6 +28,7 @@ app = FastAPI(
 app.include_router(vision_router, prefix='/api/v1')
 app.include_router(translation_router, prefix='/api/v1')
 app.include_router(healthcare_facilities_router, prefix='/api/v1')
+app.include_router(govt_healthcare_facility_router, prefix='/api/v1')
 app.include_router(logs_router, prefix='/api/v1')
 app.include_router(healthcare_schemes_router, prefix='/api/v1/schemes', tags=["Healthcare Schemes"])
 

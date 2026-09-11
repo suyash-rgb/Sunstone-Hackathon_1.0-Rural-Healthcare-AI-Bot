@@ -1,6 +1,9 @@
-﻿fix(data_ingestion): scrub HTML tags from scheme texts
+feat(facilities): integrate Govt Healthcare Facilities Database
 
-- Update clean_val function in seed_health_schemes.py
-- Add HTML tag removal (br, p, etc.) and entity unescaping
-- Preserve formatting like newlines and hyphens for clean embeddings
-- Prevent garbage markup from polluting the RAG Vector DB
+- Register HealthcareFacility model in DB base
+- Create govt_healthcare_facility_service for Postgres spatial queries
+- Add govt_healthcare_facility endpoints for searching/filtering govt centers
+- Create schemas for DB responses (DBHealthcareFacilityResponse, etc.)
+- Add data preprocessing script (preprocess_nin_facilities.py) for NIN CSV dataset
+- Add data ingestion script (seed_nin_facilities.py) for seeding to Postgres DB
+- Wire up the new router in main.py

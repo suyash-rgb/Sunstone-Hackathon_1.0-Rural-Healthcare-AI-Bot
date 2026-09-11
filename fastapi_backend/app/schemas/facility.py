@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional, List
 
+# --- Legacy External Services Schemas ---
 class MedicalFacility(BaseModel):
     place_id: str
     name: str
@@ -21,3 +22,48 @@ class FacilityDiscoveryResponse(BaseModel):
     total_found: int
     user_location: dict
     facilities: List[MedicalFacility]
+
+# --- PostgreSQL DB Healthcare Facility Schemas ---
+class DBHealthcareFacilityResponse(BaseModel):
+    id: int
+    sr_no: Optional[int] = None
+    facility_name: str
+    address: Optional[str] = None
+    street: Optional[str] = None
+    landmark: Optional[str] = None
+    locality: Optional[str] = None
+    pincode: Optional[str] = None
+    landline_number: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    facility_type: str
+    tier_level: str
+    state_name: str
+    district_name: str
+    taluka_name: Optional[str] = None
+    block_name: Optional[str] = None
+    formatted_address: Optional[str] = None
+    distance_meters: Optional[float] = None
+    distance_km: Optional[float] = None
+
+    class Config:
+        from_attributes = True
+
+class DBNearbyFacilityResponse(BaseModel):
+    total_found: int
+    user_location: dict
+    radius_meters: int
+    facilities: List[DBHealthcareFacilityResponse]
+
+class DBFacilityPaginatedResponse(BaseModel):
+    total_count: int
+    page: int
+    limit: int
+    total_pages: int
+    facilities: List[DBHealthcareFacilityResponse]
+
+class LocationHierarchyResponse(BaseModel):
+    states: Optional[List[str]] = None
+    districts: Optional[List[str]] = None
+    talukas: Optional[List[str]] = None
+    blocks: Optional[List[str]] = None
