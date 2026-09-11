@@ -1,8 +1,6 @@
-﻿refactor(rag): optimize hybrid search & llm prompt
+﻿fix(data_ingestion): scrub HTML tags from scheme texts
 
-- Implement Reciprocal Rank Fusion (RRF) for vector and lexical search
-- Add diversity filtering to return distinct scheme chunks
-- Prioritize metadata chunks over FAQs for cleaner LLM context
-- Refactor LLM prompt into a concise citation-router mode
-- Fix healthcare schemes module naming and router imports
-- Improve token efficiency and response latency
+- Update clean_val function in seed_health_schemes.py
+- Add HTML tag removal (br, p, etc.) and entity unescaping
+- Preserve formatting like newlines and hyphens for clean embeddings
+- Prevent garbage markup from polluting the RAG Vector DB

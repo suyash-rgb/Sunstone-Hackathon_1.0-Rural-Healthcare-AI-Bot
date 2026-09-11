@@ -22,11 +22,32 @@ from app.db.models.health_scheme import (
 
 DATASET_PATH = os.path.join(backend_dir, "datasets", "health_schemes.xlsx")
 
+import html
+
 def clean_val(val):
     if pd.isna(val) or val is None:
         return None
     s = str(val).strip()
-    return s if s and s.lower() != 'nan' else None
+    if not s or s.lower() == 'nan':
+        return None
+    
+    # 1. Replace <br> tags and <p> boundaries with newlines to preserve spacing
+    s = re.sub(r'<br\s*/?>', '\n', s, flags=re.IGNORECASE)
+    s = re.sub(r'</?p\s*>', '\n', s, flags=re.IGNORECASE)
+    
+    # 2. Strip all remaining HTML tags (like <b>, <i>, <a>, <span>)
+    s = re.sub(r'<[^>]+>', '', s)
+    
+    # 3. Unescape HTML entities (&amp; -> &, &quot; -> ", etc.)
+    s = html.unescape(s)
+    
+    # 4. Remove strange unicode replacements (like object replacement character)
+    s = s.replace('\ufffc', '')
+    
+    # 5. Normalize whitespace while preserving essential newlines and tabs
+    s = re.sub(r'\n{3,}', '\n\n', s) # collapse 3+ newlines to 2
+    
+    return s.strip()
 
 def parse_faqs(raw):
     if not raw:
