@@ -58,3 +58,4 @@ npx expo start
 - `npm start` - Starts the Expo bundler.
 - `npm run android` - Starts the bundler and attempts to open the app on a connected Android emulator.
 - `npm run ios` - Starts the bundler and attempts to open the app on an iOS simulator (Mac only).
+- `npx expo start --tunnel` to test on multiple devices without proximity limitations.
