@@ -93,20 +93,20 @@ export default function ChatScreen({ chat, goBack, openProfile, onUpdateMessages
         const followUps = [
           {
             id: 'msg-1',
-            text: translations[currentLanguage].welcome,
+            text: getTranslation(currentLanguage, 'welcome'),
             sender: 'other',
             time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             buttons: [
-              translations[currentLanguage].locate,
-              translations[currentLanguage].lang,
-              translations[currentLanguage].book,
-              translations[currentLanguage].doctor,
-              translations[currentLanguage].help
+              getTranslation(currentLanguage, 'locate'),
+              getTranslation(currentLanguage, 'lang'),
+              getTranslation(currentLanguage, 'book'),
+              getTranslation(currentLanguage, 'doctor'),
+              getTranslation(currentLanguage, 'help')
             ]
           },
           {
             id: 'msg-2',
-            text: translations[currentLanguage].info,
+            text: getTranslation(currentLanguage, 'info'),
             sender: 'other',
             time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
           }
@@ -313,7 +313,7 @@ export default function ChatScreen({ chat, goBack, openProfile, onUpdateMessages
     setCurrentLanguage(langCode);
 
     // 1. Post user confirmation message
-    const confirmText = translations[langCode].confirmLang;
+    const confirmText = getTranslation(langCode, 'confirmLang');
     const userMsg = {
       id: Date.now().toString(),
       text: confirmText,
@@ -326,18 +326,18 @@ export default function ChatScreen({ chat, goBack, openProfile, onUpdateMessages
     setIsTyping(true);
     setTimeout(() => {
       setIsTyping(false);
-      const welcomeText = translations[langCode].welcome;
+      const welcomeText = getTranslation(langCode, 'welcome');
       const botMsg = {
         id: (Date.now() + 1).toString(),
         text: welcomeText,
         sender: 'other',
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         buttons: [
-          translations[langCode].locate,
-          translations[langCode].lang,
-          translations[langCode].book,
-          translations[langCode].doctor,
-          translations[langCode].help
+          getTranslation(langCode, 'locate'),
+          getTranslation(langCode, 'lang'),
+          getTranslation(langCode, 'book'),
+          getTranslation(langCode, 'doctor'),
+          getTranslation(langCode, 'help')
         ]
       };
       playSound();
@@ -478,7 +478,7 @@ export default function ChatScreen({ chat, goBack, openProfile, onUpdateMessages
                                   if (status !== 'granted') {
                                     setTimeout(() => {
                                       setIsTyping(false);
-                                      const botReply = translations[currentLanguage].gps_denied || "I need location access to find nearby healthcare facilities...";
+                                      const botReply = getTranslation(currentLanguage, 'gps_denied') || "I need location access to find nearby healthcare facilities...";
                                       const botMsg = {
                                         id: Date.now().toString(),
                                         text: botReply,
@@ -505,7 +505,7 @@ export default function ChatScreen({ chat, goBack, openProfile, onUpdateMessages
 
                                   const locMsg = {
                                     id: (Date.now() + 1).toString(),
-                                    text: `${translations[currentLanguage].locAcquired.replace('{lat}', location.coords.latitude.toFixed(6)).replace('{lon}', location.coords.longitude.toFixed(6))}`,
+                                    text: `${getTranslation(currentLanguage, 'locAcquired').replace('{lat}', location.coords.latitude.toFixed(6)).replace('{lon}', location.coords.longitude.toFixed(6))}`,
                                     sender: 'me',
                                     time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                                   };
@@ -532,7 +532,7 @@ export default function ChatScreen({ chat, goBack, openProfile, onUpdateMessages
                                         : mockHospitals;
 
                                       setIsTyping(false);
-                                      const botReply = translations[currentLanguage].locReply;
+                                      const botReply = getTranslation(currentLanguage, 'locReply');
                                       const botMsg = {
                                         id: (Date.now() + 2).toString(),
                                         text: botReply,
@@ -547,7 +547,7 @@ export default function ChatScreen({ chat, goBack, openProfile, onUpdateMessages
                                       setIsTyping(false);
                                       const botMsg = {
                                         id: (Date.now() + 2).toString(),
-                                        text: translations[currentLanguage].locReply,
+                                        text: getTranslation(currentLanguage, 'locReply'),
                                         sender: 'other',
                                         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
                                         hospitalCarouselItems: mockHospitals

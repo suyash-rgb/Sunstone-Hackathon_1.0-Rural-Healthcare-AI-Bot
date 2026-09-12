@@ -1,34 +1,8 @@
-Telemedicine 3-Pathway Integration
+fix: Unsafe Property Access 
 
-[ Welcome Message Options ]
- ├── 📍 Locate a Healthcare Facility
- ├── 🌐 Change Language
- ├── 📅 Book a Consultation ──► Triggers sub-menu:
- │                            ├── 1. 🆔 ABHA Digital Doctor Booking (In-App Ticket)
- │                            ├── 2. 🌐 eSanjeevani Govt Tele-OPD (Portal Gateway)
- │                            └── 3. 📞 Schedule 104 Doctor Call-back
- │
- ├── 👨‍⚕️ Talk to a Doctor ─────► Triggers sub-menu:
- │                            ├── 1. 📞 Call 104 Health Helpline (Instant Dial: 104)
- │                            └── 2. 🌐 Launch eSanjeevani Video Call
- │
- └── 🚨 EMERGENCY/HELP
+accessing translations[langCode].xyz directly was the potential cause for the crash. If a user tapped Telugu/Gujarati, the app would instantly fatally crash. I have permanently patched this by routing all text through the safe getTranslation() helper.
 
+JSBigFileString::fromPath on the app console was the actual cause for crash. 
+When a user opens the app, Expo Go downloads the app's Javascript bundle over the ngrok tunnel. If the tunnel connection drops or stutters mid-download (which the terminal confirmed with Tunnel connection has been closed), the phone receives a corrupted/partial file and crashes with Could not open file:.
 
-
-1) 🆔 ABHA Digital Doctor Booking (In-App Ticket)
-• User says: "Book a doctor", "ABHA booking", "digital doctor"
-• AI shows: Dropdown menu with doctor specialties (Cardiologist, Neurologist, etc.) or latest token number.
-• Action: Generates a token, stores in DB, displays ticket with "Call Doctor" button.
-
-2) 🌐 eSanjeevani Govt Tele-OPD (Portal Gateway)
-• User says: "eSanjeevani", "tele-consultation", "online OPD"
-• AI shows: Link/Button to open https://esanjeevaniopd.in in browser.
-
-3) 📞 Schedule 104 Doctor Call-back
-• User says: "104 doctor", "call me back", "104 consultation"
-• AI shows: Ticket saying "104 Agent will call you at [User's Phone Number] within 24 hours."
-
-4) 📞 Call 104 Health Helpline (Instant Dial)
-• User says: "Call 104", "helpline", "emergency"
-• AI shows: "Dialing 104..." + Instant phone dialer prompt.
+added @expo/ngrok dependency for tunneling and eliminating proximity limitation in dev phase and testing.
