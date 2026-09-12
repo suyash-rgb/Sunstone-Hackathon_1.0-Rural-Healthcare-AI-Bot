@@ -105,10 +105,10 @@ The following facility types from our database fall under Tier 3:
 
 ## Implementation in ArogyaMitra API
 
-When querying the /api/v1/govt-healthcare-facilities/nearby endpoint, the tier_level parameter can be used to filter results:
-- ?tier_level=1_primary
-- ?tier_level=2_secondary
-- ?tier_level=3_tertiary
-- ?tier_level=all (Default)
+When querying the ````/api/v1/govt-healthcare-facilities/nearby```` endpoint, the tier_level parameter can be used to filter results:
+- ````?tier_level=1_primary```` <br>
+- ````?tier_level=2_secondary```` <br>
+- ````?tier_level=3_tertiary```` <br>
+- ````?tier_level=all```` (Default) <br>
 
 This categorization allows the ArogyaMitra AI Chatbot to intelligently recommend a nearby SubCentre or PHC for a simple fever, but immediately escalate to recommending a District Hospital for a suspected fracture or severe medical emergency.
