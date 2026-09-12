@@ -1,9 +1,60 @@
-feat(facilities): integrate Govt Healthcare Facilities Database
+feat: Emergency Healthcare Facility Search
 
-- Register HealthcareFacility model in DB base
-- Create govt_healthcare_facility_service for Postgres spatial queries
-- Add govt_healthcare_facility endpoints for searching/filtering govt centers
-- Create schemas for DB responses (DBHealthcareFacilityResponse, etc.)
-- Add data preprocessing script (preprocess_nin_facilities.py) for NIN CSV dataset
-- Add data ingestion script (seed_nin_facilities.py) for seeding to Postgres DB
-- Wire up the new router in main.py
+implemented the Unified Emergency Search Engine (GET /api/v1/emergency/facilities/nearby) that concurrently queries both the local PostgreSQL database (containing 192,905 verified public health facilities) and external POI services (OlaMaps / OpenStreetMap), merging and sorting all facilities strictly by distance with a Government Facility Guarantee.
+
+# Unified Emergency Healthcare Facility Search Engine Walkthrough
+
+We have implemented the **Unified Emergency Search Engine** (`GET /api/v1/emergency/facilities/nearby`) that concurrently queries both the local PostgreSQL database (containing 192,905 verified public health facilities) and external POI services (OlaMaps / OpenStreetMap), merging and sorting all facilities strictly by **distance** with a **Top 5 Government Facility Guarantee**.
+
+---
+
+Key Features & Logic
+
+1. Guaranteed Government Representation in Top 5
+- After sorting all combined results by distance ascending, the system checks if at least one government health facility is present in the **Top 5 results**.
+- If no government facility is present in the initial top 5 (e.g. urban areas surrounded by private clinics), the system automatically finds the **nearest verified Government DB facility** and promotes it to **position #5**.
+- This ensures rural citizens using the app always see at least one verified public healthcare option directly on their main screen without having to scroll deep down.
+
+2. Resiliency & Graceful Degradation
+- Implemented `asyncio.gather(return_exceptions=True)` to execute queries in parallel.
+- If external APIs fail or time out, the backend gracefully degrades to returning only verified Government DB facilities without throwing an HTTP 500 error.
+
+3. Spatial Deduplication
+- If an external POI is within 150 meters of a verified Government DB facility, the verified NIN record takes precedence and the duplicate external entry is filtered out.
+
+
+Verification Results (Dhar, M.P.)
+
+text
+--- 1. Testing EmergencyService directly ---
+Total Combined Facilities Found: 14
+User Location: {'lat': 22.605883, 'lon': 75.320098}
+Search Radius: 10.0 km
+
+[ 1] Source: olamaps         | Dist:  0.32km ( 322.0m) | Name: Maa Subhadra Devi Hospital          | Type: Private Hospital
+[ 2] Source: olamaps         | Dist:  0.50km ( 504.0m) | Name: Ujjan City Hospital                 | Type: Private Hospital
+[ 3] Source: olamaps         | Dist:  0.56km ( 562.0m) | Name: Vitomed HealthCare Pvt.Ltd          | Type: Private Healthcare Clinic
+[ 4] Source: olamaps         | Dist:  0.59km ( 587.0m) | Name: Tirupati Hospital, Dhar             | Type: Private Hospital
+[ 5] Source: government_db   | Dist:  1.91km (1906.6m) | Name: DH Dhar                             | Type: District Hospital [GOVT]
+[ 6] Source: olamaps         | Dist:  0.81km ( 810.0m) | Name: Dynamic PhysioTherapy Clinic Dhar   | Type: Private Healthcare Clinic
+[ 7] Source: government_db   | Dist:  5.87km (5866.2m) | Name: SHC Padalya                         | Type: SubCentre [GOVT]
+[ 8] Source: government_db   | Dist:  5.96km (5955.8m) | Name: SHC Padlya                          | Type: SubCentre [GOVT]
+[ 9] Source: government_db   | Dist:  5.96km (5964.8m) | Name: SHC Himmatgarh                      | Type: SubCentre [GOVT]
+[10] Source: government_db   | Dist:  7.21km (7210.1m) | Name: SHC Chikliya                        | Type: SubCentre [GOVT]
+[11] Source: government_db   | Dist:  8.99km (8986.8m) | Name: SHC Tirla                           | Type: SubCentre [GOVT]
+[12] Source: government_db   | Dist:  9.30km (9300.7m) | Name: CHC Tilra                           | Type: Community Health Center [GOVT]
+[13] Source: government_db   | Dist:  9.77km (9766.0m) | Name: SHC Dilawara                        | Type: SubCentre [GOVT]
+[14] Source: government_db   | Dist:  9.88km (9882.2m) | Name: SHC Mohanpura                       | Type: SubCentre [GOVT]
+
+Stats: Government DB = 9, External (OlaMaps/OSM) = 5
+Top 5 contains government facility: True
+Govt facilities in Top 5: ['DH Dhar']
+Direct EmergencyService test PASSED successfully!
+
+--- 2. Testing FastAPI Router /api/v1/emergency/facilities/nearby via ASGITransport ---
+HTTP Status: 200
+Endpoint returned 14 facilities.
+Top result: Maa Subhadra Devi Hospital (olamaps) at 0.32km
+Govt facilities in Top 5: ['DH Dhar']
+FastAPI ASGITransport Router test PASSED successfully!
+

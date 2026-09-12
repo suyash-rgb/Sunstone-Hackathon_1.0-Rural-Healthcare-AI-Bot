@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+﻿from pydantic import BaseModel
 from typing import Optional, List
 
 # --- Legacy External Services Schemas ---
@@ -67,3 +67,25 @@ class LocationHierarchyResponse(BaseModel):
     districts: Optional[List[str]] = None
     talukas: Optional[List[str]] = None
     blocks: Optional[List[str]] = None
+
+# --- Unified Emergency Facility Schemas ---
+class CombinedEmergencyFacility(BaseModel):
+    id: str
+    source: str  # "government_db", "olamaps", or "osm"
+    facility_name: str
+    formatted_address: str
+    distance_meters: float
+    distance_km: float
+    latitude: float
+    longitude: float
+    type: str
+    tier_level: Optional[str] = None
+    contact_numbers: Optional[str] = None
+    is_government: bool = False
+    google_maps_url: Optional[str] = None
+
+class CombinedEmergencyFacilityResponse(BaseModel):
+    total_found: int
+    search_radius_km: float
+    user_location: dict
+    facilities: List[CombinedEmergencyFacility]
